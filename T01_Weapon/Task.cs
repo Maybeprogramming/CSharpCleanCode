@@ -5,7 +5,7 @@
         private int _damage;
         private int _bullets;
 
-        public Weapon(int damage, int bullets)  
+        public Weapon(int damage, int bullets)
         {
             ArgumentOutOfRangeException.ThrowIfNegative(damage);
             ArgumentOutOfRangeException.ThrowIfNegative(bullets);
@@ -16,11 +16,11 @@
 
         public void TryFire(Player player)
         {
-            if (_bullets > 0)
-            {
-                player.TryTakeDamage(_damage);
-                _bullets--;
-            }
+            if (_bullets <= 0)
+                throw new ArgumentOutOfRangeException(nameof(_bullets));
+
+            player.TryTakeDamage(_damage);
+            _bullets--;
         }
     }
 
@@ -59,17 +59,17 @@
 
         public Bot(Weapon weapon)
         {
-            if (weapon != null)
-                _weapon = weapon;
-            else
+            if (weapon == null)
                 throw new NullReferenceException(nameof(weapon));
+
+            _weapon = weapon;
         }
 
         public void OnSeePlayer(Player player)
         {
             if (player == null)
                 throw new NullReferenceException(nameof(player));
-            
+
             _weapon.TryFire(player);
         }
     }
