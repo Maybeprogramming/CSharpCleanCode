@@ -30,3 +30,23 @@
             Weapon.Fire(player);
         }
     }
+
+Попытка 1:
+1. _bullets -= 1; - 1 - магическое число
+
+2. 
+class Weapon
+{
+    private int _damage;
+    private int _bullets; 
+    - тут нужен конструктор с агрегацией и проверкой значений
+
+3.
+if (damage < 0)
+{
+    return false;
+} 
+- в исключительных ситуациях не нужно использовать return, бросай исключение
+
+4. public void Initialize(Weapon weapon) 
+- это должен быть конструктор с проверкой на null

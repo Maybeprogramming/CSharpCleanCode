@@ -5,12 +5,21 @@
         private int _damage;
         private int _bullets;
 
-        public void Fire(Player player)
+        public Weapon(int damage, int bullets)  
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(damage);
+            ArgumentOutOfRangeException.ThrowIfNegative(bullets);
+
+            _damage = damage;
+            _bullets = bullets;
+        }
+
+        public void TryFire(Player player)
         {
             if (_bullets > 0)
             {
                 player.TryTakeDamage(_damage);
-                _bullets -= 1;
+                _bullets--;
             }
         }
     }
@@ -19,25 +28,28 @@
     {
         private int _health;
 
-        public int Health => _health;
-
-        public bool TryTakeDamage(int damage)
+        public int Health
         {
-            if (damage < 0)
-            {
-                return false;
-            }
+            get => _health;
+            private set => SetHealth(value);
+        }
 
-            if (_health >= damage)
-            {
-                _health -= damage;
-                return true;
-            }
+        public bool IsAlive => _health > 0;
+
+        public void TryTakeDamage(int damage)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(damage);
+
+            if (IsAlive)
+                Health -= damage;
+        }
+
+        private void SetHealth(int value)
+        {
+            if (value >= 0)
+                _health = value;
             else
-            {
                 _health = 0;
-                return false;
-            }
         }
     }
 
@@ -45,14 +57,20 @@
     {
         private Weapon _weapon;
 
-        public void Initialize(Weapon weapon)
+        public Bot(Weapon weapon)
         {
-            _weapon = weapon;
+            if (weapon != null)
+                _weapon = weapon;
+            else
+                throw new NullReferenceException(nameof(weapon));
         }
 
         public void OnSeePlayer(Player player)
         {
-            _weapon.Fire(player);
+            if (player == null)
+                throw new NullReferenceException(nameof(player));
+            
+            _weapon.TryFire(player);
         }
     }
 }
