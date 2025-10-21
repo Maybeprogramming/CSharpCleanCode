@@ -1,10 +1,13 @@
-﻿
-namespace T02_WebMarket
+﻿namespace T02_WebMarket
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            Cart cart1 = new Cart();
+            Console.WriteLine($"{cart1.Order().Paylink}");
+            Console.ReadKey();
+
             Good iPhone12 = new Good("IPhone 12");
             Good iPhone11 = new Good("IPhone 11");
 
@@ -33,7 +36,9 @@ namespace T02_WebMarket
 
     public class Cart
     {
-        public string Paylink { get; private set; }
+        private string _store = "https://online-store.ru/Paylink?";
+
+        public string Paylink => _store + GetRandomString();
 
         public void Add(Good good, int amount)
         {
@@ -42,12 +47,34 @@ namespace T02_WebMarket
 
         public Cart Order()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{nameof(Order)}  - Метод не реализован!");
+            return this;
         }
 
         public void ShowGoods()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{nameof(ShowGoods)}  - Метод не реализован!");
+        }
+
+        private string GetRandomString()
+        {
+            Random random = new Random();
+            int randomNumber;
+            int minNumber = 0;
+            int maxNumber = 26;
+            int staticNumber = 65;
+            int stringLenth = 20;
+            string generatedString = "";
+
+            for (int i = 0; i < stringLenth; i++)
+            {
+                randomNumber = random.Next(minNumber, maxNumber);
+                char letter = Convert.ToChar(randomNumber + staticNumber);
+
+                generatedString += letter;
+            }
+
+            return generatedString;
         }
     }
 
@@ -62,7 +89,8 @@ namespace T02_WebMarket
 
         public Cart Cart()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{nameof(Cart)}  - Метод не реализован!");
+            return new Cart();
         }
     }
 
@@ -70,12 +98,12 @@ namespace T02_WebMarket
     {
         public void Delive(Good good, int amount)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{nameof(Delive)} - Метод не реализован!");
         }
 
         public void ShowAll()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{nameof(ShowAll)}  - Метод не реализован!");
         }
     }
 
