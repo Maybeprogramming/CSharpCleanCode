@@ -35,17 +35,17 @@ namespace T02_WebMarket
     {
         public string Paylink { get; private set; }
 
-        internal void Add(Good good, int amount)
+        public void Add(Good good, int amount)
         {
             throw new NotImplementedException();
         }
 
-        internal Cart Order()
+        public Cart Order()
         {
             throw new NotImplementedException();
         }
 
-        internal void ShowGoods()
+        public void ShowGoods()
         {
             throw new NotImplementedException();
         }
@@ -73,7 +73,7 @@ namespace T02_WebMarket
             throw new NotImplementedException();
         }
 
-        internal void ShowAll()
+        public void ShowAll()
         {
             throw new NotImplementedException();
         }
