@@ -42,7 +42,7 @@
 
         public void Add(Good good, int amount)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{nameof(Add)}  - Метод не реализован!");
         }
 
         public Cart Order()
