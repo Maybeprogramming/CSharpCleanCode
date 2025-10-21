@@ -15,19 +15,20 @@ namespace T02_Test
         }
 
         [Test]
-        public void Test1()
+        public void FirstRunTest()
         {
             Assert.Pass();
         }
 
         [Test]
-        public void Test2()
+        public void TestPaylink()
         {
             Cart cart1 = new Cart();
 
             string str = cart1.Order().Paylink;
+            string strStatic = "https://online-store.ru/Paylink?";
 
-            Assert.That(str, Is.Not.Empty);
+            Assert.That(str.Contains(strStatic));
         } 
     }
 }
