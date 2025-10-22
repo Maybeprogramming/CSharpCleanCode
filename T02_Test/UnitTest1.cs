@@ -26,7 +26,7 @@ namespace T02_Test
             Cart cart1 = new Cart();
 
             string str = cart1.Order().Paylink;
-            string strStatic = "https://online-store.ru/Paylink?";
+            string strStatic = "https://online-store.ru/Paylink/";
 
             Assert.That(str.Contains(strStatic));
         } 
