@@ -4,11 +4,8 @@
     {
         static void Main(string[] args)
         {
-            #region TEST
-            Cart cart1 = new Cart();
-            Console.WriteLine($"{cart1.Order().Paylink}");
-            Console.ReadKey();
-            #endregion
+            Console.SetWindowSize(80, 25);  // Стандартный размер
+            Console.SetBufferSize(80, 300); // Стандартный размер буфера
 
             Good iPhone12 = new Good("IPhone 12");
             Good iPhone11 = new Good("IPhone 11");
@@ -32,6 +29,8 @@
             Console.WriteLine(cart.Order().Paylink);
 
             cart.Add(iPhone12, 9); //Ошибка, после заказа со склада убираются заказанные товары
+
+            Console.ReadKey();
         }
     }
 
@@ -41,57 +40,49 @@
 
         private readonly List<Cell> _cells;
 
+        public event Action Ordered;
+        public event Action<Cell, Deliver> TryAdding;
+
         public Cart()
         {
-            _storeAdressURL = "https://online-store.ru/Paylink?"; ;
+            _storeAdressURL = "https://online-store.ru/Paylink/";
             _cells = new List<Cell>();
         }
 
-        public string Paylink => CreatePaylink(_storeAdressURL);
+        public string Paylink => Utils.GetRandomString(_storeAdressURL);
 
         public void Add(Good good, int amount)
         {
-            Console.WriteLine($"{nameof(Add)}  - Метод не реализован!");
+            Cell cell = new Cell(good, amount);
+            Deliver deliver = new Deliver();
+
+            TryAdding?.Invoke(cell, deliver);
+
+            if (deliver.CanMove == false)
+            {
+                Utils.Print($"Ошибка - нет нужного количества товара на складе");
+            }
+            else
+            {
+                _cells.Add(cell);
+            }
         }
 
         public IOrderable Order()
         {
+            Ordered?.Invoke();
             return this;
         }
 
         public void ShowGoods()
         {
-            int index = 0;
-
-            Console.WriteLine($"На складе имеются следующие товары:");
-
-            foreach (var cell in _cells)
-            {
-                Console.WriteLine($"{++index}: {cell.Good.Name} - [{cell.Amount}] шт.");
-            }
+            Utils.PrintCollection(_cells, $"В корзине следующие товары:");
         }
+    }
 
-        private string CreatePaylink(string storeAdressURL)
-        {
-            Random random = new Random();
-            int randomValue;
-            int minValue = 0;
-            int maxValue = 26;
-            int staticValue = 65;
-            int payStringLenth = 20;
-            string generatedString = String.Empty;
-            char letter;
-
-            for (int i = 0; i < payStringLenth; i++)
-            {
-                randomValue = random.Next(minValue, maxValue);
-                letter = Convert.ToChar(randomValue + staticValue);
-
-                generatedString += letter;
-            }
-
-            return storeAdressURL + generatedString;
-        }
+    public class Deliver
+    {
+        public bool CanMove { get; set; }
     }
 
     public interface IOrderable
@@ -107,9 +98,9 @@
             Amount = amount;
         }
 
-        public Good Good { get; private set; }
+        public Good Good { get; }
 
-        public int Amount { get; private set; }
+        public int Amount { get; }
     }
 
     public class Shop
@@ -125,7 +116,23 @@
         public Cart Cart()
         {
             _cart = new Cart();
+            _cart.TryAdding += OnTryAdding;
+            _cart.Ordered += OnOrdered;
+
             return _cart;
+        }
+
+        private void OnOrdered()
+        {
+            _cart.TryAdding -= OnTryAdding;
+            _cart.Ordered -= OnOrdered;
+
+            //
+        }
+
+        private void OnTryAdding(Cell cellToCart, Deliver deliver)
+        {
+            deliver.CanMove = false;
         }
     }
 
@@ -165,24 +172,57 @@
 
         public void ShowAll()
         {
-            int index = 0;
-
-            Console.WriteLine($"На складе имеются следующие товары:");
-
-            foreach (var cell in _cells)
-            {
-                Console.WriteLine($"{++index}: {cell.Good.Name} - [{cell.Amount}] шт.");
-            }
+            Utils.PrintCollection(_cells, $"На складе имеются следующие товары:");
         }
     }
 
     public class Good
     {
-        public Good(string name)
-        {
-            Name = name;
-        }
+        public Good(string name) => Name = name;
 
         public string Name { get; }
+    }
+
+    public static class Utils
+    {
+        private static Random s_random = new Random();
+
+        public static void Print(string text)
+        {
+            Console.WriteLine($"{text}");
+        }
+
+        public static void PrintCollection(IEnumerable<Cell> cells, string message)
+        {
+            int index = 0;
+
+            Print(message);
+
+            foreach (var cell in cells)
+            {
+                Print($"{++index}: {cell.Good.Name} - [{cell.Amount}] шт.");
+            }
+        }
+
+        public static string GetRandomString(string storeAdressURL)
+        {
+            int randomValue;
+            int minValue = 0;
+            int maxValue = 26;
+            int staticValue = 65;
+            int payStringLenth = 20;
+            string generatedString = String.Empty;
+            char letter;
+
+            for (int i = 0; i < payStringLenth; i++)
+            {
+                randomValue = s_random.Next(minValue, maxValue);
+                letter = Convert.ToChar(randomValue + staticValue);
+
+                generatedString += letter;
+            }
+
+            return storeAdressURL + generatedString;
+        }
     }
 }
