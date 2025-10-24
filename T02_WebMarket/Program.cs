@@ -78,8 +78,6 @@
         }
     }
 
-
-
     public class Cell : IReadOnlyCell
     {
         public Cell(Goods good, int amount)
