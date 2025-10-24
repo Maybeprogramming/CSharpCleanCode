@@ -23,7 +23,8 @@ namespace T02_Test
         [Test]
         public void TestPaylink()
         {
-            Cart cart1 = new Cart();
+            List<Cell> cells = new List<Cell>();
+            Cart cart1 = new Cart(new GoodsValidator(cells));
 
             string str = cart1.Order().Paylink;
             string strStatic = "https://online-store.ru/Paylink/";

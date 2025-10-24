@@ -5,10 +5,10 @@
         static void Main(string[] args)
         {
             Console.SetWindowSize(80, 25);  // Стандартный размер
-            Console.SetBufferSize(80, 300); // Стандартный размер буфера
+            Console.Title = "Напильник. ДЗ: Интернет магазин";
 
-            Good iPhone12 = new Good("IPhone 12");
-            Good iPhone11 = new Good("IPhone 11");
+            Goods iPhone12 = new Goods("IPhone 12");
+            Goods iPhone11 = new Goods("IPhone 11");
 
             Warehouse warehouse = new Warehouse();
             Shop shop = new Shop(warehouse);
@@ -36,29 +36,27 @@
 
     public class Cart : IOrderable
     {
-        private string _storeAdressURL;
-
         private readonly List<Cell> _cells;
 
-        public event Action Ordered;
-        public event Action<Cell, Deliver> TryAdding;
+        private string _storeAdressURL;
+        private GoodsValidator _validator;
 
-        public Cart()
+        public event Action<IEnumerable<IReadOnlyCell>> Ordered;
+
+        public Cart(GoodsValidator validator)
         {
             _storeAdressURL = "https://online-store.ru/Paylink/";
             _cells = new List<Cell>();
+            _validator = validator;
         }
 
         public string Paylink => Utils.GetRandomString(_storeAdressURL);
 
-        public void Add(Good good, int amount)
+        public void Add(Goods good, int amount)
         {
             Cell cell = new Cell(good, amount);
-            Deliver deliver = new Deliver();
 
-            TryAdding?.Invoke(cell, deliver);
-
-            if (deliver.CanMove == false)
+            if (_validator.IsGoodsAvaiableByAmount(cell) == false)
             {
                 Utils.Print($"Ошибка - нет нужного количества товара на складе");
             }
@@ -70,7 +68,7 @@
 
         public IOrderable Order()
         {
-            Ordered?.Invoke();
+            Ordered?.Invoke(_cells);
             return this;
         }
 
@@ -80,59 +78,65 @@
         }
     }
 
-    public class Deliver
-    {
-        public bool CanMove { get; set; }
-    }
 
-    public interface IOrderable
-    {
-        public string Paylink { get; }
-    }
 
-    public class Cell
+    public class Cell : IReadOnlyCell
     {
-        public Cell(Good good, int amount)
+        public Cell(Goods good, int amount)
         {
-            Good = good;
+            Goods = good;
             Amount = amount;
         }
 
-        public Good Good { get; }
+        public Goods Goods { get; }
 
-        public int Amount { get; }
+        public int Amount { get; private set; }
+
+        public void Remove(int amount)
+        {
+            if (amount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount));
+            }
+
+            Amount -= amount;
+        }
+
+        public void Add(int amount)
+        {
+            if (amount < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount));
+            }
+
+            Amount += amount;
+        }
     }
 
     public class Shop
     {
         private Warehouse _warehouse;
         private Cart _cart;
+        private GoodsValidator _validator;
 
         public Shop(Warehouse warehouse)
         {
             _warehouse = warehouse;
+            _validator = new GoodsValidator(_warehouse.Cells);
         }
 
         public Cart Cart()
         {
-            _cart = new Cart();
-            _cart.TryAdding += OnTryAdding;
+            _cart = new Cart(_validator);
             _cart.Ordered += OnOrdered;
 
             return _cart;
         }
 
-        private void OnOrdered()
+        private void OnOrdered(IEnumerable<IReadOnlyCell> cells)
         {
-            _cart.TryAdding -= OnTryAdding;
             _cart.Ordered -= OnOrdered;
-
-            //
-        }
-
-        private void OnTryAdding(Cell cellToCart, Deliver deliver)
-        {
-            deliver.CanMove = false;
+            _warehouse.TryRemoveGoods(cells);
         }
     }
 
@@ -145,7 +149,9 @@
             _cells = new();
         }
 
-        public void Delive(Good good, int amount)
+        public IEnumerable<IReadOnlyCell> Cells => _cells;
+
+        public void Delive(Goods good, int amount)
         {
             Cell cell = new Cell(good, amount);
 
@@ -159,28 +165,90 @@
             }
         }
 
-        private void MergeCell(Cell newCell)
-        {
-            Cell cell = _cells.First(cell => cell.Good.Name == newCell.Good.Name);
-            cell = new Cell(cell.Good, cell.Amount + newCell.Amount);
-        }
-
-        private bool IsCellContainsGood(Cell validateCell)
-        {
-            return _cells.Where(cell => cell.Good.Name == validateCell.Good.Name).Count() > 0;
-        }
-
         public void ShowAll()
         {
             Utils.PrintCollection(_cells, $"На складе имеются следующие товары:");
         }
+
+        public void TryRemoveGoods(IEnumerable<IReadOnlyCell> cellsOrdered)
+        {
+            foreach (Cell cellOrdered in cellsOrdered)
+            {
+                Cell cell = _cells.First(findedCell => findedCell.Goods.Name == cellOrdered.Goods.Name);
+
+                if (cell == null)
+                {
+                    throw new NullReferenceException(nameof(cell));
+                }
+                else
+                {
+                    cell.Remove(cellOrdered.Amount);
+                }
+            }
+        }
+
+        private void MergeCell(Cell newCell)
+        {
+            Cell cell = _cells.First(cell => cell.Goods.Name == newCell.Goods.Name);
+            cell.Add(cell.Amount + newCell.Amount);
+        }
+
+        private bool IsCellContainsGood(Cell validateCell)
+        {
+            return _cells.Where(cell => cell.Goods.Name == validateCell.Goods.Name).Count() > 0;
+        }
     }
 
-    public class Good
+    public class Goods
     {
-        public Good(string name) => Name = name;
+        public Goods(string name) => Name = name;
 
         public string Name { get; }
+    }
+
+    public class GoodsValidator
+    {
+        private IEnumerable<IReadOnlyCell> _cells;
+
+        public GoodsValidator(IEnumerable<IReadOnlyCell> cells)
+        {
+            _cells = cells;
+        }
+
+        public IReadOnlyCell? TryGetGoodsByName(IReadOnlyCell cellToVerify)
+        {
+            IReadOnlyCell cellInStock = _cells.First(cell => cell.Goods.Name == cellToVerify.Goods.Name);
+
+            if (cellInStock != null)
+            {
+                return cellInStock;
+            }
+
+            return null;
+        }
+
+        public bool IsGoodsAvaiableByAmount(IReadOnlyCell cellToVerify)
+        {
+            IReadOnlyCell? cellInStock = TryGetGoodsByName(cellToVerify);
+
+            if (cellInStock != null && cellInStock.Amount >= cellToVerify.Amount)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    public interface IReadOnlyCell
+    {
+        public Goods Goods { get; }
+        public int Amount { get; }
+    }
+
+    public interface IOrderable
+    {
+        public string Paylink { get; }
     }
 
     public static class Utils
@@ -200,7 +268,7 @@
 
             foreach (var cell in cells)
             {
-                Print($"{++index}: {cell.Good.Name} - [{cell.Amount}] шт.");
+                Print($"{++index}: {cell.Goods.Name} - [{cell.Amount}] шт.");
             }
         }
 
