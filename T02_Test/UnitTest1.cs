@@ -26,7 +26,7 @@ namespace T02_Test
             List<Cell> cells = new List<Cell>();
             Cart cart1 = new Cart(new GoodsValidator(cells));
 
-            string str = cart1.Order().Paylink;
+            string str = cart1.GetOrder().Paylink;
             string strStatic = "https://online-store.ru/Paylink/";
 
             Assert.That(str.Contains(strStatic));
