@@ -213,9 +213,6 @@
         {
             ArgumentNullException.ThrowIfNull(cells);
 
-            if (cells.Count() == 0)
-                throw new ArgumentException(nameof(cells));
-
             _cells = cells;
         }
 
