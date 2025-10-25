@@ -183,8 +183,7 @@
 
         private void MergeCell(Goods newGoods, int amount)
         {
-            Cell cell = _cells.First(cell => cell.Goods.Name == newGoods.Name);
-            cell.Add(cell.Amount + amount);
+            _cells.First(cell => cell.Goods.Name == newGoods.Name).Add(amount);
         }
 
         private bool IsCellContainsGoods(Goods goodsToValidate)
