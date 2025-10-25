@@ -197,7 +197,8 @@
     {
         public Goods(string name)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
+            if (String.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
 
             Name = name;
         }
