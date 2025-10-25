@@ -227,6 +227,7 @@
 
             return false;
         }
+
         private IReadOnlyCell? TryGetGoodsByName(IReadOnlyCell cellToVerify)
         {
             IReadOnlyCell cellInStock = _cells.First(cell => cell.Goods.Name == cellToVerify.Goods.Name);
