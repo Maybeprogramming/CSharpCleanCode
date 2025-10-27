@@ -50,8 +50,6 @@
             _warehouse = warehouse;
         }
 
-        public IOrderable Order => _order;
-
         public void Add(Goods goods, int amount)
         {
             Cell cell = new Cell(goods, amount);
