@@ -7,35 +7,33 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T01_Weapon", "T01_Weapon\T0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T02_WebMarket", "T02_WebMarket\T02_WebMarket.csproj", "{A7455D62-E288-4ABB-869E-5D6E3164DCA0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T02_Test", "T02_Test\T02_Test.csproj", "{59179475-2137-43F8-BDA0-FB3040DF24CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T03_Logger", "T03_Logger\T03_Logger.csproj", "{1E46D744-6545-4503-8F9B-059D317827E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T03_Logger", "T03_Logger\T03_Logger.csproj", "{1E46D744-6545-4503-8F9B-059D317827E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T04_PaymentSystem", "T04_PaymentSystem\T04_PaymentSystem.csproj", "{1511494B-871A-45B4-83F0-4E478D7228DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T04_PaymentSystem", "T04_PaymentSystem\T04_PaymentSystem.csproj", "{1511494B-871A-45B4-83F0-4E478D7228DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T05_RenameMethods", "T05_RenameMethods\T05_RenameMethods.csproj", "{EC024BC4-5429-4820-90A9-A38CBBB51C2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T05_RenameMethods", "T05_RenameMethods\T05_RenameMethods.csproj", "{EC024BC4-5429-4820-90A9-A38CBBB51C2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T06_RenameMethodsBySimpleEnglish", "T06_RenameMethodsBySimpleEnglish\T06_RenameMethodsBySimpleEnglish.csproj", "{CC6382F4-6936-4BDA-83EA-C5B8DDBAE6AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T06_RenameMethodsBySimpleEnglish", "T06_RenameMethodsBySimpleEnglish\T06_RenameMethodsBySimpleEnglish.csproj", "{CC6382F4-6936-4BDA-83EA-C5B8DDBAE6AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T07_RenameMagicValueToConstant", "T07_RenameMagicValueToConstant\T07_RenameMagicValueToConstant.csproj", "{439EB0DE-BBB7-4E69-B95B-A3FFC27DCDA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T07_RenameMagicValueToConstant", "T07_RenameMagicValueToConstant\T07_RenameMagicValueToConstant.csproj", "{439EB0DE-BBB7-4E69-B95B-A3FFC27DCDA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T08_AgainstHungarianNotation", "T08_AgainstHungarianNotation\T08_AgainstHungarianNotation.csproj", "{1D91203B-E519-4826-BB28-10FC351CBD12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T08_AgainstHungarianNotation", "T08_AgainstHungarianNotation\T08_AgainstHungarianNotation.csproj", "{1D91203B-E519-4826-BB28-10FC351CBD12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T09_ChangeNameFromSubjectName", "T09_ChangeNameFromSubjectName\T09_ChangeNameFromSubjectName.csproj", "{285A9579-A6C5-46E2-B7F9-71806883E526}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T09_ChangeNameFromSubjectName", "T09_ChangeNameFromSubjectName\T09_ChangeNameFromSubjectName.csproj", "{285A9579-A6C5-46E2-B7F9-71806883E526}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T10_ClassNameAreNouns", "T10_ClassNameAreNouns\T10_ClassNameAreNouns.csproj", "{1307445D-848B-4567-9BF8-57276290F6A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T10_ClassNameAreNouns", "T10_ClassNameAreNouns\T10_ClassNameAreNouns.csproj", "{1307445D-848B-4567-9BF8-57276290F6A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T11_MethodsSetter", "T11_MethodsSetter\T11_MethodsSetter.csproj", "{B6E3E948-147C-4DA3-9A43-499AF57E9DE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T11_MethodsSetter", "T11_MethodsSetter\T11_MethodsSetter.csproj", "{B6E3E948-147C-4DA3-9A43-499AF57E9DE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T12_GroupFieldsByPrefix", "T12_GroupFieldsByPrefix\T12_GroupFieldsByPrefix.csproj", "{D321456F-A301-40B6-BDF1-7ED015020E3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T12_GroupFieldsByPrefix", "T12_GroupFieldsByPrefix\T12_GroupFieldsByPrefix.csproj", "{D321456F-A301-40B6-BDF1-7ED015020E3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T13_Code_Refactoring", "T13_Code_Refactoring\T13_Code_Refactoring.csproj", "{D2220F2B-2AC6-491C-8EEE-A47367027A55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T13_Code_Refactoring", "T13_Code_Refactoring\T13_Code_Refactoring.csproj", "{D2220F2B-2AC6-491C-8EEE-A47367027A55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T14_Polimorfism", "T14_Polimorfism\T14_Polimorfism.csproj", "{A5D422CF-0E27-4F21-B144-0869BA6FD94D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T14_Polimorfism", "T14_Polimorfism\T14_Polimorfism.csproj", "{A5D422CF-0E27-4F21-B144-0869BA6FD94D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T15_ArgumentsFlagsAreBad", "T15_ArgumentsFlagsAreBad\T15_ArgumentsFlagsAreBad.csproj", "{7BBD9448-F098-4396-B923-F96011DE3B9B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T15_ArgumentsFlagsAreBad", "T15_ArgumentsFlagsAreBad\T15_ArgumentsFlagsAreBad.csproj", "{7BBD9448-F098-4396-B923-F96011DE3B9B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "T16_DuplicateName", "T16_DuplicateName\T16_DuplicateName.csproj", "{99F6BBC5-78E1-4705-A59B-CB2F1DF61A96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "T16_DuplicateName", "T16_DuplicateName\T16_DuplicateName.csproj", "{99F6BBC5-78E1-4705-A59B-CB2F1DF61A96}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,10 +49,6 @@ Global
 		{A7455D62-E288-4ABB-869E-5D6E3164DCA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7455D62-E288-4ABB-869E-5D6E3164DCA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7455D62-E288-4ABB-869E-5D6E3164DCA0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59179475-2137-43F8-BDA0-FB3040DF24CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{59179475-2137-43F8-BDA0-FB3040DF24CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{59179475-2137-43F8-BDA0-FB3040DF24CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{59179475-2137-43F8-BDA0-FB3040DF24CF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1E46D744-6545-4503-8F9B-059D317827E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1E46D744-6545-4503-8F9B-059D317827E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E46D744-6545-4503-8F9B-059D317827E7}.Release|Any CPU.ActiveCfg = Release|Any CPU

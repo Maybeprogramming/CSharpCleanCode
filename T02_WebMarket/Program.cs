@@ -26,7 +26,7 @@
             //Вывод всех товаров в корзине
             cart.ShowGoods();
 
-            Console.WriteLine(cart.Order.Paylink);
+            Console.WriteLine(cart.GetOrder().Paylink);
 
             cart.Add(iPhone12, 9); //Ошибка, после заказа со склада убираются заказанные товары
 
@@ -38,18 +38,16 @@
     {
         private readonly List<Cell> _cells;
 
-        private GoodsValidator _validator;
+        private IWarehoseReserveableGoods _warehouse;
         private Order _order;
 
-        public event Action<IEnumerable<IReadOnlyCell>> Ordered;
-
-        public Cart(GoodsValidator validator)
+        public Cart(IWarehoseReserveableGoods warehouse)
         {
-            ArgumentNullException.ThrowIfNull(validator);
+            ArgumentNullException.ThrowIfNull(warehouse);
 
             _order = new Order();
             _cells = new List<Cell>();
-            _validator = validator;
+            _warehouse = warehouse;
         }
 
         public IOrderable Order => _order;
@@ -58,7 +56,7 @@
         {
             Cell cell = new Cell(goods, amount);
 
-            if (_validator.IsGoodsAvaiableByAmount(cell) == false)
+            if (_warehouse.IsGoodsAvaiableByAmount(cell) == false)
             {
                 Utils.Print($"Ошибка - нет нужного количества товара на складе");
             }
@@ -66,6 +64,13 @@
             {
                 _cells.Add(cell);
             }
+        }
+
+        public IOrderable GetOrder()
+        {
+            _warehouse.TryRemoveOrderedGoods(_cells);
+
+            return _order;
         }
 
         public void ShowGoods() =>
@@ -106,32 +111,19 @@
     {
         private Warehouse _warehouse;
         private Cart _cart;
-        private GoodsValidator _validator;
 
         public Shop(Warehouse warehouse)
         {
             ArgumentNullException.ThrowIfNull(warehouse);
 
             _warehouse = warehouse;
-            _validator = new GoodsValidator(_warehouse.Cells);
+            _cart = new Cart(_warehouse);
         }
 
-        public Cart GetCart()
-        {
-            _cart = new Cart(_validator);
-            _cart.Ordered += OnOrdered;
-
-            return _cart;
-        }
-
-        private void OnOrdered(IEnumerable<IReadOnlyCell> cells)
-        {
-            _cart.Ordered -= OnOrdered;
-            _warehouse.TryRemoveGoods(cells);
-        }
+        public Cart GetCart() => _cart;
     }
 
-    public class Warehouse
+    public class Warehouse: IWarehoseReserveableGoods
     {
         private readonly List<Cell> _cells;
 
@@ -157,7 +149,19 @@
         public void ShowAll() =>
             Utils.PrintCollection(_cells, $"На складе имеются следующие товары:");
 
-        public void TryRemoveGoods(IEnumerable<IReadOnlyCell> cellsOrdered)
+        public bool IsGoodsAvaiableByAmount(IReadOnlyCell cellToVerify)
+        {
+            IReadOnlyCell? cellInStock = TryGetGoodsByName(cellToVerify);
+
+            if (cellInStock != null && cellInStock.Amount >= cellToVerify.Amount)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public void TryRemoveOrderedGoods(IEnumerable<IReadOnlyCell> cellsOrdered)
         {
             foreach (Cell cellOrdered in cellsOrdered)
             {
@@ -182,6 +186,18 @@
         private bool IsCellContainsGoods(Goods goodsToValidate)
         {
             return _cells.Where(cell => cell.Goods.Name == goodsToValidate.Name).Count() > 0;
+        }
+
+        private IReadOnlyCell? TryGetGoodsByName(IReadOnlyCell cellToVerify)
+        {
+            IReadOnlyCell cellInStock = _cells.First(cell => cell.Goods.Name == cellToVerify.Goods.Name);
+
+            if (cellInStock != null)
+            {
+                return cellInStock;
+            }
+
+            return null;
         }
     }
 
@@ -209,40 +225,10 @@
         public string Paylink => Utils.GetRandomString(_storeAdressURL);
     }
 
-    public class GoodsValidator
+    public interface IWarehoseReserveableGoods
     {
-        private IEnumerable<IReadOnlyCell> _cells;
-
-        public GoodsValidator(IEnumerable<IReadOnlyCell> cells)
-        {
-            ArgumentNullException.ThrowIfNull(cells);
-
-            _cells = cells;
-        }
-
-        public bool IsGoodsAvaiableByAmount(IReadOnlyCell cellToVerify)
-        {
-            IReadOnlyCell? cellInStock = TryGetGoodsByName(cellToVerify);
-
-            if (cellInStock != null && cellInStock.Amount >= cellToVerify.Amount)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private IReadOnlyCell? TryGetGoodsByName(IReadOnlyCell cellToVerify)
-        {
-            IReadOnlyCell cellInStock = _cells.First(cell => cell.Goods.Name == cellToVerify.Goods.Name);
-
-            if (cellInStock != null)
-            {
-                return cellInStock;
-            }
-
-            return null;
-        }
+        bool IsGoodsAvaiableByAmount(IReadOnlyCell cell);
+        void TryRemoveOrderedGoods(IEnumerable<IReadOnlyCell> cells);
     }
 
     public interface IReadOnlyCell
@@ -262,11 +248,16 @@
 
         public static void Print(string text)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(text);
+         
             Console.WriteLine($"{text}");
         }
 
         public static void PrintCollection(IEnumerable<Cell> cells, string message)
         {
+            ArgumentNullException.ThrowIfNull(cells);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(message);
+
             int index = 0;
 
             Print(message);
@@ -279,6 +270,8 @@
 
         public static string GetRandomString(string storeAdressURL)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(storeAdressURL);
+
             int randomValue;
             int minValue = 0;
             int maxValue = 26;
