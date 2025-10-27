@@ -4,23 +4,61 @@
     {
         static void Main(string[] args)
         {
+            ILogger consoleLogWritter = new ConsoleLogWritter();
+            ILogger secureConsoleLogWritter = new SecureConsoleLogWritter();
+            ILogger fileLogWritter = new FileLogWritter();
+            ILogger secureFileLogWritter = new SecureFileLogWritter();
+            ILogger specialLogWritter = new SpecialLogWritter(new ConsoleLogWritter(), new SecureFileLogWritter());
 
+            Pathfinder pathfinder = new Pathfinder();
+
+            pathfinder.Find(consoleLogWritter, $"Вывод сообщения в консоль");
+            pathfinder.Find(secureConsoleLogWritter, $"Вывод сообщения в консоль");
+            pathfinder.Find(fileLogWritter, $"Вывод сообщения в консоль");
+            pathfinder.Find(secureFileLogWritter, $"Вывод сообщения в консоль");
+            pathfinder.Find(specialLogWritter, $"Вывод сообщения в консоль");
         }
     }
 
-    public class ConsoleLogWritter
+    public class Pathfinder
+    {
+        public void Find(ILogger logger, string message) => 
+            logger.WriteError(message);
+    }
+
+    public interface ILogger
+    {
+        void WriteError(string message);
+    }
+
+    public class ConsoleLogWritter : ILogger
     {
         public virtual void WriteError(string message)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(message);
+
             Console.WriteLine(message);
         }
     }
 
-    public class FileLogWritter
+    public class FileLogWritter : ILogger
     {
         public virtual void WriteError(string message)
         {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(message);
+
             File.WriteAllText("log.txt", message);
+        }
+    }
+
+    public class SecureFileLogWritter : FileLogWritter
+    {
+        public override void WriteError(string message)
+        {
+            if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
+            {
+                base.WriteError(message);
+            }
         }
     }
 
@@ -32,6 +70,27 @@
             {
                 base.WriteError(message);
             }
+        }
+    }
+
+    public class SpecialLogWritter : ILogger
+    {
+        ConsoleLogWritter _consoleLogWritter;
+        SecureFileLogWritter _secureFileLogWritter;
+
+        public SpecialLogWritter(ConsoleLogWritter consoleLogWritter, SecureFileLogWritter secureFileLogWritter)
+        {
+            ArgumentNullException.ThrowIfNull(consoleLogWritter);
+            ArgumentNullException.ThrowIfNull(secureFileLogWritter);
+
+            _consoleLogWritter = consoleLogWritter;
+            _secureFileLogWritter = secureFileLogWritter;
+        }
+
+        public void WriteError(string message)
+        {
+            _consoleLogWritter.WriteError(message);
+            _secureFileLogWritter.WriteError(message);
         }
     }
 }
