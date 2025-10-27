@@ -79,7 +79,7 @@
 
     public class SecureLogWritter : ILogger
     {
-        private ILogger _loggerWritter;
+        private ILogger _logWritter;
         private DayOfWeek _dayOfWeek;
 
         public SecureLogWritter(ILogger loggerWritter, DayOfWeek dayOfWeek)
@@ -87,7 +87,7 @@
             ArgumentNullException.ThrowIfNull(loggerWritter);
             ArgumentNullException.ThrowIfNull(dayOfWeek);
 
-            _loggerWritter = loggerWritter;
+            _logWritter = loggerWritter;
             _dayOfWeek = dayOfWeek;
         }
 
@@ -95,7 +95,7 @@
         {
             if (DateTime.Now.DayOfWeek == _dayOfWeek)
             {
-                _loggerWritter.WriteError(message);
+                _logWritter.WriteError(message);
             }
         }
     }
