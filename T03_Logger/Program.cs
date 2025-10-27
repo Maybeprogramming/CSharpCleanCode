@@ -10,24 +10,36 @@
             ILogger secureFileLogWritter = new SecureFileLogWritter();
             ILogger specialLogWritter = new SpecialLogWritter(new ConsoleLogWritter(), new SecureFileLogWritter());
 
-            Pathfinder pathfinder = new Pathfinder();
+            Pathfinder consoleLog = new Pathfinder(consoleLogWritter);
+            Pathfinder secureConsoleLog = new Pathfinder(secureConsoleLogWritter);
+            Pathfinder fileLog = new Pathfinder(fileLogWritter);
+            Pathfinder secureFileLog = new Pathfinder(secureFileLogWritter);
+            Pathfinder specialLog = new Pathfinder(specialLogWritter);
 
-            pathfinder.Find(consoleLogWritter, $"Вывод сообщения в консоль");
-            pathfinder.Find(secureConsoleLogWritter, $"Вывод сообщения в консоль по пятницам");
-            pathfinder.Find(fileLogWritter, $"Вывод сообщения в файл");
-            pathfinder.Find(secureFileLogWritter, $"Вывод сообщения в файл по пятницам");
-            pathfinder.Find(specialLogWritter, $"Вывод сообщения в консоль ежедневно и в файл по пятницам");
+            consoleLog.Find($"Вывод сообщения в консоль");
+            secureConsoleLog.Find($"Вывод сообщения в консоль по пятницам");
+            fileLog.Find($"Вывод сообщения в файл");
+            secureFileLog.Find($"Вывод сообщения в файл по пятницам");
+            specialLog.Find($"Вывод сообщения в консоль ежедневно и в файл по пятницам");
         }
     }
 
     public class Pathfinder
     {
-        public void Find(ILogger logger, string message)
+        private ILogger _logWritter;
+
+        public Pathfinder(ILogger logWritter)
         {
-            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(logWritter);
+
+            _logWritter = logWritter;
+        }
+
+        public void Find(string message)
+        {            
             ArgumentNullException.ThrowIfNullOrWhiteSpace(message);
 
-            logger.WriteError(message);
+            _logWritter.WriteError(message);
         }
     }
 
