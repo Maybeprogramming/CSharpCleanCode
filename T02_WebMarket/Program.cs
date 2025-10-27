@@ -7,8 +7,8 @@
             Console.SetWindowSize(80, 25);  // Стандартный размер
             Console.Title = "Напильник. ДЗ: Интернет магазин";
 
-            Goods iPhone12 = new Goods("IPhone 12");
-            Goods iPhone11 = new Goods("IPhone 11");
+            Product iPhone12 = new Product("IPhone 12");
+            Product iPhone11 = new Product("IPhone 11");
 
             Warehouse warehouse = new Warehouse();
             Shop shop = new Shop(warehouse);
@@ -24,7 +24,7 @@
             cart.Add(iPhone11, 3); //при такой ситуации возникает ошибка так, как нет нужного количества товара на складе
 
             //Вывод всех товаров в корзине
-            cart.ShowGoods();
+            cart.ShowProducts();
 
             Console.WriteLine(cart.GetOrder().Paylink);
 
@@ -38,25 +38,28 @@
     {
         private readonly List<Cell> _cells;
 
-        private IWarehoseReserveableGoods _warehouse;
-        private Order _order;
+        private IWarehoseReserveableProducts _warehouse;
 
-        public Cart(IWarehoseReserveableGoods warehouse)
+        public Cart(IWarehoseReserveableProducts warehouse)
         {
             ArgumentNullException.ThrowIfNull(warehouse);
 
-            _order = new Order();
             _cells = new List<Cell>();
             _warehouse = warehouse;
         }
 
-        public void Add(Goods goods, int amount)
+        public void Add(Product product, int amount)
         {
-            Cell cell = new Cell(goods, amount);
+            Cell cell = new Cell(product, amount);
 
-            if (_warehouse.IsGoodsAvaiableByAmount(cell) == false)
+            if (_warehouse.IsProductAvaiableByAmount(cell) == false)
             {
-                Utils.Print($"Ошибка - нет нужного количества товара на складе");
+                throw new Exception($"Ошибка - нет {product.Name} в количестве: [{amount}] единиц");
+            }
+
+            if (IsCellContainsProduct(product))
+            {
+                MergeCell(product, amount);
             }
             else
             {
@@ -66,27 +69,33 @@
 
         public IOrderable GetOrder()
         {
-            _warehouse.TryRemoveOrderedGoods(_cells);
+            _warehouse.TryRemoveOrderedProducts(_cells);
 
-            return _order;
+            return new Order();
         }
 
-        public void ShowGoods() =>
+        public void ShowProducts() =>
             Utils.PrintCollection(_cells, $"В корзине следующие товары:");
+
+        private void MergeCell(Product newProduct, int amount) =>
+            _cells.First(cell => cell.Products.Name == newProduct.Name).Add(amount);
+
+        private bool IsCellContainsProduct(Product productToValidate) =>
+             _cells.Where(cell => cell.Products.Name == productToValidate.Name).Count() > 0;
     }
 
     public class Cell : IReadOnlyCell
     {
-        public Cell(Goods goods, int amount)
+        public Cell(Product product, int amount)
         {
-            ArgumentNullException.ThrowIfNull(goods);
+            ArgumentNullException.ThrowIfNull(product);
             ArgumentOutOfRangeException.ThrowIfNegative(amount);
 
-            Goods = goods;
+            Products = product;
             Amount = amount;
         }
 
-        public Goods Goods { get; }
+        public Product Products { get; }
         public int Amount { get; private set; }
 
         public void TryRemove(int amount)
@@ -107,21 +116,20 @@
 
     public class Shop
     {
-        private Warehouse _warehouse;
-        private Cart _cart;
+        private IWarehoseReserveableProducts _warehouse;
 
         public Shop(Warehouse warehouse)
         {
             ArgumentNullException.ThrowIfNull(warehouse);
 
             _warehouse = warehouse;
-            _cart = new Cart(_warehouse);
         }
 
-        public Cart GetCart() => _cart;
+        public Cart GetCart() =>
+            new Cart(_warehouse);
     }
 
-    public class Warehouse: IWarehoseReserveableGoods
+    public class Warehouse : IWarehoseReserveableProducts
     {
         private readonly List<Cell> _cells;
 
@@ -130,26 +138,24 @@
             _cells = new();
         }
 
-        public IEnumerable<IReadOnlyCell> Cells => _cells;
-
-        public void Delive(Goods goods, int amount)
+        public void Delive(Product product, int amount)
         {
-            if (IsCellContainsGoods(goods))
+            if (IsCellContainsProduct(product))
             {
-                MergeCell(goods, amount);
+                MergeCell(product, amount);
             }
             else
             {
-                _cells.Add(new Cell(goods, amount));
+                _cells.Add(new Cell(product, amount));
             }
         }
 
         public void ShowAll() =>
             Utils.PrintCollection(_cells, $"На складе имеются следующие товары:");
 
-        public bool IsGoodsAvaiableByAmount(IReadOnlyCell cellToVerify)
+        public bool IsProductAvaiableByAmount(IReadOnlyCell cellToVerify)
         {
-            IReadOnlyCell? cellInStock = TryGetGoodsByName(cellToVerify);
+            IReadOnlyCell? cellInStock = GetProductByName(cellToVerify);
 
             if (cellInStock != null && cellInStock.Amount >= cellToVerify.Amount)
             {
@@ -159,11 +165,11 @@
             return false;
         }
 
-        public void TryRemoveOrderedGoods(IEnumerable<IReadOnlyCell> cellsOrdered)
+        public void TryRemoveOrderedProducts(IEnumerable<IReadOnlyCell> cellsOrdered)
         {
             foreach (Cell cellOrdered in cellsOrdered)
             {
-                Cell cell = _cells.First(findedCell => findedCell.Goods.Name == cellOrdered.Goods.Name);
+                Cell? cell = GetProductByName(cellOrdered);
 
                 if (cell == null)
                 {
@@ -176,32 +182,19 @@
             }
         }
 
-        private void MergeCell(Goods newGoods, int amount)
-        {
-            _cells.First(cell => cell.Goods.Name == newGoods.Name).Add(amount);
-        }
+        private void MergeCell(Product newProduct, int amount) =>
+            _cells.First(cell => cell.Products.Name == newProduct.Name).Add(amount);
 
-        private bool IsCellContainsGoods(Goods goodsToValidate)
-        {
-            return _cells.Where(cell => cell.Goods.Name == goodsToValidate.Name).Count() > 0;
-        }
+        private bool IsCellContainsProduct(Product productToValidate) =>
+             _cells.Where(cell => cell.Products.Name == productToValidate.Name).Count() > 0;
 
-        private IReadOnlyCell? TryGetGoodsByName(IReadOnlyCell cellToVerify)
-        {
-            IReadOnlyCell cellInStock = _cells.First(cell => cell.Goods.Name == cellToVerify.Goods.Name);
-
-            if (cellInStock != null)
-            {
-                return cellInStock;
-            }
-
-            return null;
-        }
+        private Cell? GetProductByName(IReadOnlyCell cellToVerify) =>
+            _cells.First(cell => cell.Products.Name == cellToVerify.Products.Name);
     }
 
-    public class Goods
+    public class Product
     {
-        public Goods(string name)
+        public Product(string name)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
 
@@ -223,15 +216,15 @@
         public string Paylink => Utils.GetRandomString(_storeAdressURL);
     }
 
-    public interface IWarehoseReserveableGoods
+    public interface IWarehoseReserveableProducts
     {
-        bool IsGoodsAvaiableByAmount(IReadOnlyCell cell);
-        void TryRemoveOrderedGoods(IEnumerable<IReadOnlyCell> cells);
+        bool IsProductAvaiableByAmount(IReadOnlyCell verifyCell);
+        void TryRemoveOrderedProducts(IEnumerable<IReadOnlyCell> cells);
     }
 
     public interface IReadOnlyCell
     {
-        public Goods Goods { get; }
+        public Product Products { get; }
         public int Amount { get; }
     }
 
@@ -247,7 +240,7 @@
         public static void Print(string text)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(text);
-         
+
             Console.WriteLine($"{text}");
         }
 
@@ -262,7 +255,7 @@
 
             foreach (var cell in cells)
             {
-                Print($"{++index}: {cell.Goods.Name} - [{cell.Amount}] шт.");
+                Print($"{++index}: {cell.Products.Name} - [{cell.Amount}] шт.");
             }
         }
 
