@@ -22,8 +22,13 @@
 
     public class Pathfinder
     {
-        public void Find(ILogger logger, string message) => 
+        public void Find(ILogger logger, string message)
+        {
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(message);
+
             logger.WriteError(message);
+        }
     }
 
     public class ConsoleLogWritter : ILogger
