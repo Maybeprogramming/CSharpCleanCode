@@ -13,10 +13,10 @@
             Pathfinder pathfinder = new Pathfinder();
 
             pathfinder.Find(consoleLogWritter, $"Вывод сообщения в консоль");
-            pathfinder.Find(secureConsoleLogWritter, $"Вывод сообщения в консоль");
-            pathfinder.Find(fileLogWritter, $"Вывод сообщения в консоль");
-            pathfinder.Find(secureFileLogWritter, $"Вывод сообщения в консоль");
-            pathfinder.Find(specialLogWritter, $"Вывод сообщения в консоль");
+            pathfinder.Find(secureConsoleLogWritter, $"Вывод сообщения в консоль по пятницам");
+            pathfinder.Find(fileLogWritter, $"Вывод сообщения в файл");
+            pathfinder.Find(secureFileLogWritter, $"Вывод сообщения в файл по пятницам");
+            pathfinder.Find(specialLogWritter, $"Вывод сообщения в консоль ежедневно и в файл по пятницам");
         }
     }
 
@@ -24,11 +24,6 @@
     {
         public void Find(ILogger logger, string message) => 
             logger.WriteError(message);
-    }
-
-    public interface ILogger
-    {
-        void WriteError(string message);
     }
 
     public class ConsoleLogWritter : ILogger
@@ -92,5 +87,9 @@
             _consoleLogWritter.WriteError(message);
             _secureFileLogWritter.WriteError(message);
         }
+    }
+    public interface ILogger
+    {
+        void WriteError(string message);
     }
 }
