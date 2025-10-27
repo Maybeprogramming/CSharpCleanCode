@@ -4,11 +4,14 @@
     {
         static void Main(string[] args)
         {
+            DayOfWeek dayOfWeekToLogWritter = DayOfWeek.Friday;
+
             ILogger consoleLogWritter = new ConsoleLogWritter();
-            ILogger secureConsoleLogWritter = new SecureConsoleLogWritter();
+            ILogger secureConsoleLogWritter = new SecureLogWritter(consoleLogWritter, dayOfWeekToLogWritter);
             ILogger fileLogWritter = new FileLogWritter();
-            ILogger secureFileLogWritter = new SecureFileLogWritter();
-            ILogger specialLogWritter = new SpecialLogWritter(new ConsoleLogWritter(), new SecureFileLogWritter());
+            ILogger secureFileLogWritter = new SecureLogWritter(fileLogWritter, dayOfWeekToLogWritter);
+            List<ILogger> loggersCollection = new List<ILogger>() { consoleLogWritter, secureFileLogWritter };
+            ILogger specialLogWritter = new SpecialLogWritter(loggersCollection);
 
             Pathfinder consoleLog = new Pathfinder(consoleLogWritter);
             Pathfinder secureConsoleLog = new Pathfinder(secureConsoleLogWritter);
@@ -17,10 +20,10 @@
             Pathfinder specialLog = new Pathfinder(specialLogWritter);
 
             consoleLog.Find($"Вывод сообщения в консоль");
-            secureConsoleLog.Find($"Вывод сообщения в консоль по пятницам");
+            secureConsoleLog.Find($"Вывод сообщения в консоль по [{dayOfWeekToLogWritter}]");
             fileLog.Find($"Запись сообщения в файл");
             secureFileLog.Find($"Запись сообщения в файл по пятницам");
-            specialLog.Find($"Вывод сообщения в консоль и запись в файл по пятницам");
+            specialLog.Find($"Вывод сообщения в консоль и запись в файл по [{dayOfWeekToLogWritter}]");
         }
     }
 
@@ -36,7 +39,7 @@
         }
 
         public void Find(string message)
-        {            
+        {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(message);
 
             _logWritter.WriteError(message);
@@ -74,46 +77,46 @@
         }
     }
 
-    public class SecureFileLogWritter : FileLogWritter
+    public class SecureLogWritter : ILogger
     {
-        public override void WriteError(string message)
-        {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
-            {
-                base.WriteError(message);
-            }
-        }
-    }
+        private ILogger _loggerWritter;
+        private DayOfWeek _dayOfWeek;
 
-    public class SecureConsoleLogWritter : ConsoleLogWritter
-    {
-        public override void WriteError(string message)
+        public SecureLogWritter(ILogger loggerWritter, DayOfWeek dayOfWeek)
         {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
+            ArgumentNullException.ThrowIfNull(loggerWritter);
+            ArgumentNullException.ThrowIfNull(dayOfWeek);
+
+            _loggerWritter = loggerWritter;
+            _dayOfWeek = dayOfWeek;
+        }
+
+        public void WriteError(string message)
+        {
+            if (DateTime.Now.DayOfWeek == _dayOfWeek)
             {
-                base.WriteError(message);
+                _loggerWritter.WriteError(message);
             }
         }
     }
 
     public class SpecialLogWritter : ILogger
     {
-        private ConsoleLogWritter _consoleLogWritter;
-        private SecureFileLogWritter _secureFileLogWritter;
+        private readonly List<ILogger> _loggers;
 
-        public SpecialLogWritter(ConsoleLogWritter consoleLogWritter, SecureFileLogWritter secureFileLogWritter)
+        public SpecialLogWritter(List<ILogger> loggers)
         {
-            ArgumentNullException.ThrowIfNull(consoleLogWritter);
-            ArgumentNullException.ThrowIfNull(secureFileLogWritter);
+            ArgumentNullException.ThrowIfNull(loggers);
 
-            _consoleLogWritter = consoleLogWritter;
-            _secureFileLogWritter = secureFileLogWritter;
+            _loggers = loggers;
         }
 
         public void WriteError(string message)
         {
-            _consoleLogWritter.WriteError(message);
-            _secureFileLogWritter.WriteError(message);
+            foreach (ILogger logWritter in _loggers)
+            {
+                logWritter.WriteError(message);
+            }
         }
     }
 
