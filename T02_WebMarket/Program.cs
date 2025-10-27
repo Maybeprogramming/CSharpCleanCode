@@ -17,7 +17,7 @@
             warehouse.Delive(iPhone11, 1);
 
             //Вывод всех товаров на складе с их остатком
-            warehouse.ShowAll();
+            warehouse.ShowProducts();
 
             Cart cart = shop.GetCart();
             cart.Add(iPhone12, 4);
@@ -150,7 +150,7 @@
             }
         }
 
-        public void ShowAll() =>
+        public void ShowProducts() =>
             Utils.PrintCollection(_cells, $"На складе имеются следующие товары:");
 
         public bool IsProductAvaiableByAmount(IReadOnlyCell cellToVerify)
