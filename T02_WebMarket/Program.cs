@@ -26,7 +26,7 @@
             //Вывод всех товаров в корзине
             cart.ShowGoods();
 
-            Console.WriteLine(cart.GetOrder().Paylink);
+            Console.WriteLine(cart.Order.Paylink);
 
             cart.Add(iPhone12, 9); //Ошибка, после заказа со склада убираются заказанные товары
 
@@ -34,26 +34,25 @@
         }
     }
 
-    public class Cart : IOrderable
+    public class Cart
     {
         private readonly List<Cell> _cells;
 
-        private string _storeAdressURL;
         private GoodsValidator _validator;
+        private Order _order;
 
         public event Action<IEnumerable<IReadOnlyCell>> Ordered;
 
         public Cart(GoodsValidator validator)
         {
-            if (validator == null)
-                throw new ArgumentNullException(nameof(validator));
+            ArgumentNullException.ThrowIfNull(validator);
 
-            _storeAdressURL = "https://online-store.ru/Paylink/";
+            _order = new Order();
             _cells = new List<Cell>();
             _validator = validator;
         }
 
-        public string Paylink => Utils.GetRandomString(_storeAdressURL);
+        public IOrderable Order => _order;
 
         public void Add(Goods goods, int amount)
         {
@@ -67,12 +66,6 @@
             {
                 _cells.Add(cell);
             }
-        }
-
-        public IOrderable GetOrder()
-        {
-            Ordered?.Invoke(_cells);
-            return this;
         }
 
         public void ShowGoods() =>
@@ -203,6 +196,18 @@
         }
 
         public string Name { get; }
+    }
+
+    public class Order : IOrderable
+    {
+        private string _storeAdressURL;
+
+        public Order()
+        {
+            _storeAdressURL = "https://online-store.ru/Paylink/";
+        }
+
+        public string Paylink => Utils.GetRandomString(_storeAdressURL);
     }
 
     public class GoodsValidator
