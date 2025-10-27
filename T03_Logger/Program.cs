@@ -66,7 +66,7 @@
     {
         public override void WriteError(string message)
         {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Monday)
+            if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
             {
                 base.WriteError(message);
             }
@@ -77,7 +77,7 @@
     {
         public override void WriteError(string message)
         {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Monday)
+            if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
             {
                 base.WriteError(message);
             }
