@@ -43,11 +43,22 @@
 
     public class FileLogWritter : ILogger
     {
+        private readonly string _path = "log.txt";
+
         public virtual void WriteError(string message)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(message);
 
-            File.WriteAllText("log.txt", message);
+            string logText = String.Empty;
+
+            if (File.Exists(_path))
+            {
+                logText = File.ReadAllText(_path);
+            }
+
+            logText += "\n" + message;
+
+            File.WriteAllText(_path, logText);
         }
     }
 
@@ -55,7 +66,7 @@
     {
         public override void WriteError(string message)
         {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
+            if (DateTime.Now.DayOfWeek == DayOfWeek.Monday)
             {
                 base.WriteError(message);
             }
@@ -66,7 +77,7 @@
     {
         public override void WriteError(string message)
         {
-            if (DateTime.Now.DayOfWeek == DayOfWeek.Friday)
+            if (DateTime.Now.DayOfWeek == DayOfWeek.Monday)
             {
                 base.WriteError(message);
             }
