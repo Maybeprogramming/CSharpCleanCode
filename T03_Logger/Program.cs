@@ -98,8 +98,8 @@
 
     public class SpecialLogWritter : ILogger
     {
-        ConsoleLogWritter _consoleLogWritter;
-        SecureFileLogWritter _secureFileLogWritter;
+        private ConsoleLogWritter _consoleLogWritter;
+        private SecureFileLogWritter _secureFileLogWritter;
 
         public SpecialLogWritter(ConsoleLogWritter consoleLogWritter, SecureFileLogWritter secureFileLogWritter)
         {
@@ -116,6 +116,7 @@
             _secureFileLogWritter.WriteError(message);
         }
     }
+
     public interface ILogger
     {
         void WriteError(string message);
