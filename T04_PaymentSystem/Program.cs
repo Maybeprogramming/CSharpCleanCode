@@ -14,9 +14,9 @@ namespace T04_PaymentSystem
 
             Order order = new Order(orderID, amountByRub);
 
-            IPaymentSystem webPaymentSystem = new PaymentSystem(new WebPaymentSystem());
-            IPaymentSystem criptoPaymentSystem = new PaymentSystem(new CriptoPaymentSystem());
-            IPaymentSystem onlinePaymentSystem = new PaymentSystem(new OnlinePaymentSystem());
+            IPaymentSystem webPaymentSystem = new PaymentSystem(new WebPaymentSystem(new CriptoSystem(new MD5Hasher())));
+            IPaymentSystem criptoPaymentSystem = new PaymentSystem(new CriptoPaymentSystem(new CriptoSystem(new MD5Hasher())));
+            IPaymentSystem onlinePaymentSystem = new PaymentSystem(new OnlinePaymentSystem(new CriptoSystem(new SHA1Hasher())));
 
             Console.WriteLine($"{webPaymentSystem.GetPayingLink(order)}");
             Console.WriteLine($"{criptoPaymentSystem.GetPayingLink(order)}");
@@ -36,9 +36,9 @@ namespace T04_PaymentSystem
 
     public class PaymentSystem : IPaymentSystem
     {
-        private IPaymentSystem _paymentSystem;
+        private readonly IPaymentSystem _paymentSystem;
 
-        public PaymentSystem(IPaymentSystem paymentSystem)
+        public PaymentSystem(IPaymentSystem paymentSystem) 
         {
             ArgumentNullException.ThrowIfNull(paymentSystem, nameof(paymentSystem));
 
@@ -51,45 +51,77 @@ namespace T04_PaymentSystem
         }
     }
 
-    public class WebPaymentSystem : IPaymentSystem
+    public abstract class BasePaymentSystem: IPaymentSystem
     {
-        public string GetPayingLink(Order order)
+        private protected readonly IPrivacyPolicy _privacyPolicy;
+
+        protected BasePaymentSystem(IPrivacyPolicy privacyPolicy)
         {
-            string hashMD5 = Criptografer.ComputeMD5(order.Id.ToString());
+            ArgumentNullException.ThrowIfNull(privacyPolicy, nameof(privacyPolicy));
+
+            _privacyPolicy = privacyPolicy;
+        }
+
+        public abstract string GetPayingLink(Order order);
+    }
+
+    public class WebPaymentSystem : BasePaymentSystem
+    {
+        public WebPaymentSystem(IPrivacyPolicy privacyPolicy) : base(privacyPolicy) { }
+
+        public override string GetPayingLink(Order order)
+        {
+            string hashMD5 = _privacyPolicy.ComputeHash(order.Id.ToString());
 
             return $"pay.system1.ru/order?amount={order.Amount}RUB&hash={{{hashMD5}}}";
         }
     }
 
-    public class CriptoPaymentSystem : IPaymentSystem
+    public class CriptoPaymentSystem : BasePaymentSystem
     {
-        public string GetPayingLink(Order order)
+        public CriptoPaymentSystem(IPrivacyPolicy privacyPolicy): base (privacyPolicy) { }
+
+        public override string GetPayingLink(Order order)
         {
-            string hashMD5 = Criptografer.ComputeMD5($"{order.Id}{order.Amount}");
+            string hashMD5 = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}");
 
             return $"order.system2.ru/pay?hash={{{hashMD5}}}";
         }
     }
 
-    public class OnlinePaymentSystem : IPaymentSystem
+    public class OnlinePaymentSystem : BasePaymentSystem
     {
-        public string GetPayingLink(Order order)
+        public OnlinePaymentSystem(IPrivacyPolicy privacyPolicy): base(privacyPolicy) { }
+
+        public override string GetPayingLink(Order order)
         {
             string secretKey = "QWERTY-SECRET-KEY";
-            string hashSHA1 = Criptografer.ComputeSHA1($"{order.Id}{order.Amount}{secretKey}");
+            string hashSHA1 = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}{secretKey}");
 
             return $"system3.com/pay?amount={order.Amount}&curency=RUB&hash={{{hashSHA1}}}";
         }
     }
 
-    public interface IPaymentSystem
+    public class CriptoSystem: IPrivacyPolicy
     {
-        public string GetPayingLink(Order order);
+        private IPrivacyPolicy _privacyPolicy;
+
+        public CriptoSystem(IPrivacyPolicy privacyPolicy)
+        {
+            ArgumentNullException.ThrowIfNull(privacyPolicy);
+
+            _privacyPolicy = privacyPolicy;
+        }
+
+        public string ComputeHash(string input)
+        {
+            return _privacyPolicy.ComputeHash(input);
+        }
     }
 
-    public static class Criptografer
+    public class MD5Hasher : IPrivacyPolicy
     {
-        public static string ComputeMD5(string input)
+        public string ComputeHash(string input)
         {
             using (MD5 md5 = MD5.Create())
             {
@@ -99,8 +131,11 @@ namespace T04_PaymentSystem
                 return Convert.ToHexString(hashBytes).ToUpper();
             }
         }
+    }
 
-        public static string ComputeSHA1(string input) 
+    public class SHA1Hasher : IPrivacyPolicy
+    {
+        public string ComputeHash(string input)
         {
             using (SHA1 sha1 = SHA1.Create())
             {
@@ -110,5 +145,14 @@ namespace T04_PaymentSystem
                 return Convert.ToHexString(hashBytes).ToUpper();
             }
         }
+    }
+    public interface IPaymentSystem
+    {
+        public string GetPayingLink(Order order);
+    }
+
+    public interface IPrivacyPolicy
+    {
+        public string ComputeHash(string input);
     }
 }
