@@ -55,7 +55,7 @@ namespace T04_PaymentSystem
     {
         private protected readonly IPrivacyPolicy _privacyPolicy;
 
-        protected BasePaymentSystem(IPrivacyPolicy privacyPolicy)
+        public BasePaymentSystem(IPrivacyPolicy privacyPolicy)
         {
             ArgumentNullException.ThrowIfNull(privacyPolicy, nameof(privacyPolicy));
 
