@@ -69,9 +69,9 @@ namespace T04_PaymentSystem
     {
         public override string GetPayingLink(Order order)
         {
-            string hashMD5 = _privacyPolicy.ComputeHash(order.Id.ToString());
+            string hash = _privacyPolicy.ComputeHash(order.Id.ToString());
 
-            return $"pay.system1.ru/order?amount={order.Amount}RUB&hash={{{hashMD5}}}";
+            return $"pay.system1.ru/order?amount={order.Amount}RUB&hash={{{hash}}}";
         }
     }
 
@@ -79,9 +79,9 @@ namespace T04_PaymentSystem
     {
         public override string GetPayingLink(Order order)
         {
-            string hashMD5 = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}");
+            string hash = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}");
 
-            return $"order.system2.ru/pay?hash={{{hashMD5}}}";
+            return $"order.system2.ru/pay?hash={{{hash}}}";
         }
     }
 
@@ -90,9 +90,9 @@ namespace T04_PaymentSystem
         public override string GetPayingLink(Order order)
         {
             string secretKey = "QWERTY-SECRET-KEY";
-            string hashSHA1 = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}{secretKey}");
+            string hash = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}{secretKey}");
 
-            return $"system3.com/pay?amount={order.Amount}&curency=RUB&hash={{{hashSHA1}}}";
+            return $"system3.com/pay?amount={order.Amount}&curency=RUB&hash={{{hash}}}";
         }
     }
 
