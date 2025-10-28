@@ -1,18 +1,31 @@
 ﻿namespace T07_RenameMagicValueToConstant
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
+            Console.Title = "ДЗ: \"10. Магические числа нужно всегда заменять на константы\"";
         }
     }
 
-    class Weapon
+    public class Weapon
     {
+        private const int EmptyMagazine = 0;
+        private const int BulletsPerShot = 1;
+
         private int _bullets;
 
-        public bool CanShoot() => _bullets > 0;
+        public Weapon(int bullets)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(bullets);
 
-        public void Shoot() => _bullets -= 1;
+            _bullets = bullets;
+        }
+
+        public bool CanShoot() => 
+            _bullets > EmptyMagazine;
+
+        public void Shoot() => 
+            _bullets = CanShoot() == true ? _bullets -= BulletsPerShot: _bullets = EmptyMagazine;
     }
 }

@@ -1,20 +1,23 @@
 ﻿namespace T05_RenameMethods
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            
+            Console.Title = "ДЗ: \"2. Даже простой алгоритм можно угробить тупым названием метода\"";
         }
 
-        public static int MakeValidNumber(int a, int b, int c)
+        public static int Clamp(int value, int minValue, int maxValue)
         {
-            if (a < b)
-                return b;
-            else if (a > c)
-                return c;
+            if (minValue > maxValue)
+                throw new Exception($"Минимальное значение не может быть больше максимального! min: {minValue} > max: {maxValue}");
+
+            if (value < minValue)
+                return minValue;
+            else if (value > maxValue)
+                return maxValue;
             else
-                return a;
+                return value;
         }
     }
 }

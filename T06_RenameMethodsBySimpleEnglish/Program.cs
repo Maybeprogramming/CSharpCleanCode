@@ -1,13 +1,13 @@
 ﻿namespace T06_RenameMethodsBySimpleEnglish
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-
+            Console.Title = "ДЗ: \"7. При именовании имеет смысл использовать упрощенный английский\"";
         }
 
-        public static int Rummage(int[] array, int element)
+        public static int GetIndex(int[] array, int element)
         {
             for (int i = 0; i < array.Length; i++)
                 if (array[i] == element)
