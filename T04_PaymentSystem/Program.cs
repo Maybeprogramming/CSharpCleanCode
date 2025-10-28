@@ -5,7 +5,7 @@ namespace T04_PaymentSystem
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.Title = "ДЗ: Платёжные системы";
 
@@ -65,10 +65,8 @@ namespace T04_PaymentSystem
         public abstract string GetPayingLink(Order order);
     }
 
-    public class WebPaymentSystem : BasePaymentSystem
+    public class WebPaymentSystem(IPrivacyPolicy privacyPolicy) : BasePaymentSystem(privacyPolicy)
     {
-        public WebPaymentSystem(IPrivacyPolicy privacyPolicy) : base(privacyPolicy) { }
-
         public override string GetPayingLink(Order order)
         {
             string hashMD5 = _privacyPolicy.ComputeHash(order.Id.ToString());
@@ -77,10 +75,8 @@ namespace T04_PaymentSystem
         }
     }
 
-    public class CriptoPaymentSystem : BasePaymentSystem
+    public class CriptoPaymentSystem(IPrivacyPolicy privacyPolicy) : BasePaymentSystem(privacyPolicy)
     {
-        public CriptoPaymentSystem(IPrivacyPolicy privacyPolicy): base (privacyPolicy) { }
-
         public override string GetPayingLink(Order order)
         {
             string hashMD5 = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}");
@@ -89,10 +85,8 @@ namespace T04_PaymentSystem
         }
     }
 
-    public class OnlinePaymentSystem : BasePaymentSystem
+    public class OnlinePaymentSystem(IPrivacyPolicy privacyPolicy) : BasePaymentSystem(privacyPolicy)
     {
-        public OnlinePaymentSystem(IPrivacyPolicy privacyPolicy): base(privacyPolicy) { }
-
         public override string GetPayingLink(Order order)
         {
             string secretKey = "QWERTY-SECRET-KEY";
