@@ -14,9 +14,9 @@ namespace T04_PaymentSystem
 
             Order order = new Order(orderID, amountByRub);
 
-            IPaymentSystem webPaymentSystem = new WebPaymentSystem();
-            IPaymentSystem criptoPaymentSystem = new CriptoPaymentSystem();
-            IPaymentSystem onlinePaymentSystem = new OnlinePaymentSystem();
+            IPaymentSystem webPaymentSystem = new PaymentSystem(new WebPaymentSystem());
+            IPaymentSystem criptoPaymentSystem = new PaymentSystem(new CriptoPaymentSystem());
+            IPaymentSystem onlinePaymentSystem = new PaymentSystem(new OnlinePaymentSystem());
 
             Console.WriteLine($"{webPaymentSystem.GetPayingLink(order)}");
             Console.WriteLine($"{criptoPaymentSystem.GetPayingLink(order)}");
@@ -32,6 +32,23 @@ namespace T04_PaymentSystem
         public readonly int Amount;
 
         public Order(int id, int amount) => (Id, Amount) = (id, amount);
+    }
+
+    public class PaymentSystem : IPaymentSystem
+    {
+        private IPaymentSystem _paymentSystem;
+
+        public PaymentSystem(IPaymentSystem paymentSystem)
+        {
+            ArgumentNullException.ThrowIfNull(paymentSystem, nameof(paymentSystem));
+
+            _paymentSystem = paymentSystem;
+        }
+
+        public string GetPayingLink(Order order)
+        {
+            return _paymentSystem.GetPayingLink(order);
+        }
     }
 
     public class WebPaymentSystem : IPaymentSystem
