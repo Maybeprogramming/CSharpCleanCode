@@ -11,12 +11,13 @@ namespace T04_PaymentSystem
 
             int orderID = 100500;
             int amountByRub = 12000;
+            string secretKey = "QWERTY-SECRET-KEY";
 
             Order order = new Order(orderID, amountByRub);
 
-            IPaymentSystem webPaymentSystem = new PaymentSystem(new WebPaymentSystem(new CriptoSystem(new MD5Hasher())));
-            IPaymentSystem criptoPaymentSystem = new PaymentSystem(new CriptoPaymentSystem(new CriptoSystem(new MD5Hasher())));
-            IPaymentSystem onlinePaymentSystem = new PaymentSystem(new OnlinePaymentSystem(new CriptoSystem(new SHA1Hasher())));
+            IPaymentSystem webPaymentSystem = new WebPaymentSystem(new MD5Hasher());
+            IPaymentSystem criptoPaymentSystem = new CriptoPaymentSystem(new MD5Hasher());
+            IPaymentSystem onlinePaymentSystem = new OnlinePaymentSystem(new SHA1Hasher(), secretKey);
 
             Console.WriteLine($"{webPaymentSystem.GetPayingLink(order)}");
             Console.WriteLine($"{criptoPaymentSystem.GetPayingLink(order)}");
@@ -31,89 +32,77 @@ namespace T04_PaymentSystem
         public readonly int Id;
         public readonly int Amount;
 
-        public Order(int id, int amount) => (Id, Amount) = (id, amount);
+        public Order(int id, int amount)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(id);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amount);
+
+            Id = id;
+            Amount = amount;
+        }
     }
 
-    public class PaymentSystem : IPaymentSystem
+    public class WebPaymentSystem : IPaymentSystem
     {
-        private readonly IPaymentSystem _paymentSystem;
+        private readonly IHasher _hasher;
 
-        public PaymentSystem(IPaymentSystem paymentSystem) 
+        public WebPaymentSystem(IHasher hasher)
         {
-            ArgumentNullException.ThrowIfNull(paymentSystem, nameof(paymentSystem));
+            ArgumentNullException.ThrowIfNull(hasher, nameof(hasher));
 
-            _paymentSystem = paymentSystem;
+            _hasher = hasher;
         }
 
         public string GetPayingLink(Order order)
         {
-            return _paymentSystem.GetPayingLink(order);
+            string hash = _hasher.ComputeHash(order.Id.ToString());
+
+            return $"pay.system1.ru/order?amount={order.Amount}RUB&hash={hash}";
         }
     }
 
-    public abstract class BasePaymentSystem: IPaymentSystem
+    public class CriptoPaymentSystem : IPaymentSystem
     {
-        private protected readonly IPrivacyPolicy _privacyPolicy;
+        private readonly IHasher _hasher;
 
-        public BasePaymentSystem(IPrivacyPolicy privacyPolicy)
+        public CriptoPaymentSystem(IHasher hasher)
         {
-            ArgumentNullException.ThrowIfNull(privacyPolicy, nameof(privacyPolicy));
+            ArgumentNullException.ThrowIfNull(hasher, nameof(hasher));
 
-            _privacyPolicy = privacyPolicy;
+            _hasher = hasher;
         }
 
-        public abstract string GetPayingLink(Order order);
+        public string GetPayingLink(Order order)
+        {
+            string hash = _hasher.ComputeHash($"{order.Id}{order.Amount}");
+
+            return $"order.system2.ru/pay?hash={hash}";
+        }
     }
 
-    public class WebPaymentSystem(IPrivacyPolicy privacyPolicy) : BasePaymentSystem(privacyPolicy)
+    public class OnlinePaymentSystem : IPaymentSystem
     {
-        public override string GetPayingLink(Order order)
-        {
-            string hash = _privacyPolicy.ComputeHash(order.Id.ToString());
+        private readonly IHasher _hasher;
+        private readonly string _secretKey;
 
-            return $"pay.system1.ru/order?amount={order.Amount}RUB&hash={{{hash}}}";
+        public OnlinePaymentSystem(IHasher hasher, string secretKey)
+        {
+            ArgumentNullException.ThrowIfNull(hasher, nameof(hasher));
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(secretKey, nameof(secretKey));
+
+            _hasher = hasher;
+            _secretKey = secretKey;
+        }
+
+        public string GetPayingLink(Order order)
+        {
+            string hash = _hasher.ComputeHash($"{order.Id}{order.Amount}{_secretKey}");
+
+            return $"system3.com/pay?amount={order.Amount}&curency=RUB&hash={hash}";
         }
     }
 
-    public class CriptoPaymentSystem(IPrivacyPolicy privacyPolicy) : BasePaymentSystem(privacyPolicy)
-    {
-        public override string GetPayingLink(Order order)
-        {
-            string hash = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}");
-
-            return $"order.system2.ru/pay?hash={{{hash}}}";
-        }
-    }
-
-    public class OnlinePaymentSystem(IPrivacyPolicy privacyPolicy) : BasePaymentSystem(privacyPolicy)
-    {
-        public override string GetPayingLink(Order order)
-        {
-            string secretKey = "QWERTY-SECRET-KEY";
-            string hash = _privacyPolicy.ComputeHash($"{order.Id}{order.Amount}{secretKey}");
-
-            return $"system3.com/pay?amount={order.Amount}&curency=RUB&hash={{{hash}}}";
-        }
-    }
-
-    public class CriptoSystem: IPrivacyPolicy
-    {
-        private readonly IPrivacyPolicy _privacyPolicy;
-
-        public CriptoSystem(IPrivacyPolicy privacyPolicy)
-        {
-            ArgumentNullException.ThrowIfNull(privacyPolicy);
-
-            _privacyPolicy = privacyPolicy;
-        }
-
-        public string ComputeHash(string input)
-        {
-            return _privacyPolicy.ComputeHash(input);
-        }
-    }
-
-    public class MD5Hasher : IPrivacyPolicy
+    public class MD5Hasher : IHasher
     {
         public string ComputeHash(string input)
         {
@@ -127,7 +116,7 @@ namespace T04_PaymentSystem
         }
     }
 
-    public class SHA1Hasher : IPrivacyPolicy
+    public class SHA1Hasher : IHasher
     {
         public string ComputeHash(string input)
         {
@@ -145,7 +134,7 @@ namespace T04_PaymentSystem
         public string GetPayingLink(Order order);
     }
 
-    public interface IPrivacyPolicy
+    public interface IHasher
     {
         public string ComputeHash(string input);
     }
