@@ -98,7 +98,7 @@ namespace T04_PaymentSystem
 
     public class CriptoSystem: IPrivacyPolicy
     {
-        private IPrivacyPolicy _privacyPolicy;
+        private readonly IPrivacyPolicy _privacyPolicy;
 
         public CriptoSystem(IPrivacyPolicy privacyPolicy)
         {
