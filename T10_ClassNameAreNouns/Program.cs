@@ -1,17 +1,19 @@
 ﻿namespace T10_ClassNameAreNouns
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
+            Console.Title = "ДЗ: 15. Имена классов и объектов должны предоставлять собой существительные";
         }
     }
 
-    class PlayerData { }
-    class GunController { }
-    class FollowTarget { }
-    class GetUnit
+    public class Unit{}
+    public class PlayerInfo { }
+    public class Weapon { }
+    public class Movement { }
+    public class Squad
     {
-        public IReadOnlyCollection<Unit> UnitsToGet { get; private set; }
+        public IReadOnlyCollection<Unit> Units { get; private set; }
     }
 }
