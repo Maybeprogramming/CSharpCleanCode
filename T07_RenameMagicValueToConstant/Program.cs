@@ -10,7 +10,6 @@
 
     public class Weapon
     {
-        private const int EmptyMagazine = 0;
         private const int BulletsPerShot = 1;
 
         private int _bullets;
@@ -22,10 +21,10 @@
             _bullets = bullets;
         }
 
-        public bool CanShoot() => 
-            _bullets > EmptyMagazine;
+        public bool CanShoot => 
+            _bullets > BulletsPerShot;
 
         public void Shoot() => 
-            _bullets = CanShoot() == true ? _bullets -= BulletsPerShot: _bullets = EmptyMagazine;
+            _bullets = CanShoot ? _bullets -= BulletsPerShot: _bullets = default;
     }
 }
