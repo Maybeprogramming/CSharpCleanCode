@@ -25,6 +25,6 @@
             _bullets > BulletsPerShot;
 
         public void Shoot() => 
-            _bullets = CanShoot ? _bullets -= BulletsPerShot: _bullets = default;
+            _bullets = CanShoot ? _bullets -= BulletsPerShot: throw new InvalidOperationException(nameof(Shoot));
     }
 }
