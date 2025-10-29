@@ -1,10 +1,11 @@
 ﻿namespace T14_Polimorfism
 {
-    internal class Program
+    public class Program
     {
-
-        static void Main(string[] args)
+        static void Main()
         {
+            Console.Title = "ДЗ: Замена условной логики полиморфизмом";
+
             var orderForm = new OrderForm();
             var paymentHandler = new PaymentHandler();
 

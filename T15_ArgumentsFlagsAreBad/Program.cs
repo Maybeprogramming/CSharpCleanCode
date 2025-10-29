@@ -1,21 +1,23 @@
 ﻿namespace T15_ArgumentsFlagsAreBad
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            public void SetEnable(bool enable)
-            {
-                _enable = enable;
+            Console.Title = "ДЗ: 30. Аргументы-флаги - это плохо";
+        }
 
-                if (_enable)
-                {
-                    _effects.StartEnableAnimation();
-                }
-                else
-                {
-                    _pool.Free(this);
-                }
+        public void SetEnable(bool enable)
+        {
+            _enable = enable;
+
+            if (_enable)
+            {
+                _effects.StartEnableAnimation();
+            }
+            else
+            {
+                _pool.Free(this);
             }
         }
     }

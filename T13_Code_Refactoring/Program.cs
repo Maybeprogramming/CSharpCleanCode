@@ -3,11 +3,11 @@ using System.Reflection;
 
 namespace T13_Code_Refactoring
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main()
         {
-            Console.WriteLine("Hello, World!");
+            Console.Title = "ДЗ: 27. В функции можно использовать функции её уровня и на один ниже";
         }
 
         private void checkButton_Click(object sender, EventArgs e)

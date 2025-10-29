@@ -1,11 +1,13 @@
 ﻿namespace T16_DuplicateName
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main()
         {
-            public void ShootPlayer(Player player) { }
-            public string FindByIndex(int number) { }
+            Console.Title = "ДЗ: 34. Имя параметра дублируется в имени метода";
         }
+
+        public void ShootPlayer(Player player) { }
+        public string FindByIndex(int number) { }
     }
 }
