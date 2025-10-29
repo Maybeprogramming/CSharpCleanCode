@@ -1,12 +1,17 @@
 ﻿namespace T08_AgainstHungarianNotation
 {
-    internal class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            int iArmySize = 10;
-            int coinsNumber = 10;
-            string strName = "Vladislav";
+            Console.Title = "ДЗ: 11. Даже деды против венгерской нотации";
         }
+    }
+
+    public class AgainstHungarianNotation
+    {
+        private int _armySize = 10;
+        private int _coinsAmount = 10;
+        private string _playerName = "Vladislav";
     }
 }
