@@ -21,10 +21,14 @@
             _bullets = bullets;
         }
 
-        public bool CanShoot => 
-            _bullets > BulletsPerShot;
+        public bool CanShoot => _bullets > BulletsPerShot;
 
-        public void Shoot() => 
-            _bullets = CanShoot ? _bullets -= BulletsPerShot: throw new InvalidOperationException(nameof(Shoot));
+        public void Shoot()
+        {
+            if (CanShoot == false)
+                throw new InvalidOperationException(nameof(Shoot));
+
+            _bullets -= BulletsPerShot;
+        }
     }
 }

@@ -7,7 +7,7 @@
         }
     }
 
-    class BulletsThrower
+    public class Weapon
     {
         public void Shoot() { }
     }
