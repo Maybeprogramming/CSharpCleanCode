@@ -1,9 +1,10 @@
 ﻿namespace T12_GroupFieldsByPrefix
 {
-    internal class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
+            Console.Title = "20. Группировка полей по префиксу";
         }
     }
 
