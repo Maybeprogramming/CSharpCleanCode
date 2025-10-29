@@ -24,11 +24,6 @@
             _weapon = weapon;
             _movement = movement;
         }
-
-        public void Attack()
-        {
-            //attack
-        }
     }
 
     public class PlayerInfo
@@ -83,19 +78,13 @@
         }
     }
 
-    public struct Vector2D
+    public struct Vector2D(float x, float y)
     {
-        public Vector2D(float x, float y)
+        public float X { get; private set; } = x;
+        public float Y { get; private set; } = y;
+
+        public void Set(float x, float y)
         {
-            X = x;
-            Y = y;
-        }
-
-        public float X { get; private set; }
-        public float Y { get; private set; }
-
-        public void Set(float x, float y) 
-        { 
             X = x;
             Y = y;
         }
