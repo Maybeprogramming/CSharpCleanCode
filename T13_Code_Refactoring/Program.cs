@@ -53,6 +53,7 @@ namespace T13_Code_Refactoring
                     {
                         if (ex.ErrorCode != 1)
                             return;
+                        
                         int num2 = (int)MessageBox.Show("Файл db.sqlite не найден. Положите файл в папку вместе с exe.");
                     }
                 }
