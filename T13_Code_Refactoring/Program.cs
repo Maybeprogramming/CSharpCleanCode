@@ -37,6 +37,7 @@ namespace T13_Code_Refactoring
                         DataTable dataTable1 = new DataTable();
                         DataTable dataTable2 = dataTable1;
                         sqLiteDataAdapter.Fill(dataTable2);
+
                         if (dataTable1.Rows.Count > 0)
                         {
                             if (Convert.ToBoolean(dataTable1.Rows[0].ItemArray[1]))
