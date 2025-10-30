@@ -2,7 +2,7 @@
 {
     public class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
             Console.Title = "ДЗ: \"10. Магические числа нужно всегда заменять на константы\"";
         }

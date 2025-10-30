@@ -2,7 +2,7 @@
 {
     public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.Title = "ДЗ: \"7. При именовании имеет смысл использовать упрощенный английский\"";
         }

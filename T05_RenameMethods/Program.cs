@@ -2,7 +2,7 @@
 {
     public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.Title = "ДЗ: \"2. Даже простой алгоритм можно угробить тупым названием метода\"";
         }
