@@ -56,4 +56,14 @@ namespace T13_Code_Refactoring
             }
         }
     }
+
+    public class View : IView
+    {
+
+    }
+
+    public interface IView
+    {
+
+    }
 }
