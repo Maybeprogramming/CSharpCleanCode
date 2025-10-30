@@ -30,7 +30,9 @@ namespace T13_Code_Refactoring
                     try
                     {
                         SQLiteConnection connection = new SQLiteConnection(connectionString);
+
                         connection.Open();
+
                         SQLiteDataAdapter sqLiteDataAdapter = new SQLiteDataAdapter(new SQLiteCommand(commandText, connection));
                         DataTable dataTable1 = new DataTable();
                         DataTable dataTable2 = dataTable1;
@@ -44,6 +46,7 @@ namespace T13_Code_Refactoring
                         }
                         else
                             this.textResult.Text = "Паспорт «" + this.passportTextbox.Text + "» в списке участников дистанционного голосования НЕ НАЙДЕН";
+                        
                         connection.Close();
                     }
                     catch (SQLiteException ex)
@@ -59,6 +62,8 @@ namespace T13_Code_Refactoring
 
     public class View : IView
     {
+        private string _requestToEnterPassportData = "Введите серию и номер паспорта";
+        private string _uncorrectPassportData = "Неверный формат серии или номера паспорта";
 
     }
 
