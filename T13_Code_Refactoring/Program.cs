@@ -1,5 +1,7 @@
 ﻿using System.Data;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace T13_Code_Refactoring
 {
@@ -14,7 +16,7 @@ namespace T13_Code_Refactoring
         {
             if (this.passportTextbox.Text.Trim() == "")
             {
-                int num1 = (int)MessageBox.Show("Введите серию и номер паспорта");
+                MessageBox.Show("Введите серию и номер паспорта");
             }
             else
             {
@@ -25,8 +27,9 @@ namespace T13_Code_Refactoring
                 }
                 else
                 {
-                    string commandText = string.Format("select * from passports where num='{0}' limit 1;", (object)Form1.ComputeSha256Hash(rawData));
-                    string connectionString = string.Format("Data Source=" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\db.sqlite");
+                    string commandText = string.Format($"select * from passports where num='{new SHA256Hasher().ComputeHash(rawData)}' limit 1;");
+                    string connectionString = string.Format($"Data Source={Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\db.sqlite");
+
                     try
                     {
                         SQLiteConnection connection = new SQLiteConnection(connectionString);
@@ -47,30 +50,144 @@ namespace T13_Code_Refactoring
                         }
                         else
                             this.textResult.Text = "Паспорт «" + this.passportTextbox.Text + "» в списке участников дистанционного голосования НЕ НАЙДЕН";
-                        
+
                         connection.Close();
                     }
                     catch (SQLiteException ex)
                     {
                         if (ex.ErrorCode != 1)
                             return;
-                        
-                        int num2 = (int)MessageBox.Show("Файл db.sqlite не найден. Положите файл в папку вместе с exe.");
+
+                        MessageBox.Show("Файл db.sqlite не найден. Положите файл в папку вместе с exe.");
                     }
                 }
             }
         }
     }
 
+    #region Классы заглушки
+
+    //класс заглушка
+    public static class MessageBox
+    {
+        public static void Show(string message) { }
+    }
+
+    //класс заглушка
+    public class TextBox
+    {
+        public string Text { get; set; }
+    }
+
+    //класс заглушка
+    public class SQLiteDataAdapter
+    {
+        private SQLiteCommand _sQLiteCommand;
+
+        public SQLiteDataAdapter(SQLiteCommand sQLiteCommand)
+        {
+            _sQLiteCommand = sQLiteCommand;
+        }
+
+        internal void Fill(DataTable dataTable2) { }
+    }
+
+    //класс заглушка
+    public class SQLiteCommand
+    {
+        public SQLiteCommand(string commandText, SQLiteConnection connection)
+        {
+            CommandText = commandText;
+            Connection = connection;
+        }
+
+        public string CommandText { get; }
+        public SQLiteConnection Connection { get; }
+    }
+
+    //класс заглушка
+    public class SQLiteConnection
+    {
+        private string _connectionString;
+
+        public SQLiteConnection(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        public void Open() { }
+
+        public void Close() { }
+    }
+
+    #endregion
+
+    public class VotePresenter
+    {
+        internal void Validate(IView view)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class View : IView
     {
-        private string _requestToEnterPassportData = "Введите серию и номер паспорта";
-        private string _uncorrectPassportData = "Неверный формат серии или номера паспорта";
+        private VotePresenter _votePresenter;
 
+        public View(VotePresenter votePresenter)
+        {
+            PassortTextBox = new TextBox();
+            TextResult = new TextBox();
+
+            _votePresenter = votePresenter;
+        }
+
+        public TextBox PassortTextBox { get; }
+        public TextBox TextResult { get; }
+
+        public void OnButtonClick()
+        {
+            _votePresenter.Validate(this);
+        }
     }
 
     public interface IView
     {
 
+    }
+
+    public class Repository
+    {
+
+    }
+
+    public class Passport
+    {
+        public Passport(string idendificationNumber)
+        {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(idendificationNumber);
+            IdendificationNumber = idendificationNumber;
+        }
+
+        public string IdendificationNumber { get; }
+    }
+
+    public class SHA256Hasher : IHasher
+    {
+        public string ComputeHash(string input)
+        {
+            using (SHA256 hasher = SHA256.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = SHA256.HashData(inputBytes);
+
+                return Convert.ToHexString(hashBytes).ToUpper();
+            }
+        }
+    }
+
+    public interface IHasher
+    {
+        string ComputeHash(string input);
     }
 }
