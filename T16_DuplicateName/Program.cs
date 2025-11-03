@@ -7,7 +7,7 @@
             Console.Title = "ДЗ: 34. Имя параметра дублируется в имени метода";
         }
 
-        public void ShootPlayer(Player player) { }
-        public string FindByIndex(int number) { }
+        public void Shoot(Player player) { }
+        public string Find(int index) { }
     }
 }
