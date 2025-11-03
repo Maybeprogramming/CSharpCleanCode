@@ -10,13 +10,13 @@ namespace T13_Code_Refactoring
         public static void Main()
         {
             Console.Title = "ДЗ: 27. В функции можно использовать функции её уровня и на один ниже";
+
             CitezensData data = new CitezensData();
             Repository repository = new Repository(data);
             SHA256Hasher hasher = new SHA256Hasher();
-            VotePresenter votePresenter = new VotePresenter(null, hasher, repository);
-            View view = new View(votePresenter);
-
-            view.OnButtonClick();
+            View view = new View();
+            VotePresenter votePresenter = new VotePresenter(view, hasher, repository);
+            view.OnButtonClick(votePresenter);
         }
     }
 
@@ -61,23 +61,19 @@ namespace T13_Code_Refactoring
 
     public class View : IView
     {
-        private VotePresenter _votePresenter;
-
-        public View(VotePresenter votePresenter)
+        public View()
         {
             PassortTextBox = new TextBox();
             TextResult = new TextBox();
-
-            _votePresenter = votePresenter;
         }
 
         public TextBox PassortTextBox { get; }
         public TextBox TextResult { get; }
 
-        public void OnButtonClick()
+        public void OnButtonClick(VotePresenter votePresenter)
         {
             string rawData = TryTakeValidData();
-            _votePresenter.Run(rawData);
+            votePresenter.Run(rawData);
         }
 
         private string TryTakeValidData()
@@ -97,12 +93,6 @@ namespace T13_Code_Refactoring
 
             return validData;
         }
-    }
-
-    public interface IView
-    {
-        TextBox PassortTextBox { get; }
-        TextBox TextResult { get; }
     }
 
     public class Repository : IRepository
@@ -141,7 +131,7 @@ namespace T13_Code_Refactoring
 
                 if (dataTable1.Rows.Count > 0)
                 {
-                    citizen = new Citizen(new Passport(String.Empty));
+                    citizen = new Citizen(null);
                 }
                 else
                     citizen = null;
@@ -151,16 +141,13 @@ namespace T13_Code_Refactoring
             catch (SQLiteException ex)
             {
                 if (ex.ErrorCode != 1)
-                    return;
+                    return null;
 
                 MessageBox.Show("Файл db.sqlite не найден. Положите файл в папку вместе с exe.");
             }
-        }
-    }
 
-    public interface IRepository
-    {
-        Citizen GetCitezen(string hashData);
+            return new Citizen(null);
+        }
     }
 
     public class Citizen
@@ -200,6 +187,17 @@ namespace T13_Code_Refactoring
                 return Convert.ToHexString(hashBytes).ToUpper();
             }
         }
+    }
+
+    public interface IView
+    {
+        TextBox PassortTextBox { get; }
+        TextBox TextResult { get; }
+    }
+
+    public interface IRepository
+    {
+        Citizen GetCitezen(string hashData);
     }
 
     public interface IHasher
