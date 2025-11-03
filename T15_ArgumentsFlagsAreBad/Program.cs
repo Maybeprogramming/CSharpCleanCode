@@ -7,18 +7,14 @@
             Console.Title = "ДЗ: 30. Аргументы-флаги - это плохо";
         }
 
-        public void SetEnable(bool enable)
+        public void Activate()
         {
-            _enable = enable;
+            _effects.StartEnableAnimation();
+        }
 
-            if (_enable)
-            {
-                _effects.StartEnableAnimation();
-            }
-            else
-            {
-                _pool.Free(this);
-            }
+        public void Deactivate() 
+        {
+            _pool.Free(this);
         }
     }
 }
