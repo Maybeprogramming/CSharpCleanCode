@@ -6,7 +6,10 @@ using System.Text;
 namespace T13_Code_Refactoring
 {
     public class Program
-    {
+    {   //Для заглушки от ошибок
+        private readonly TextBox passportTextbox;
+        private readonly TextBox textResult;
+
         public static void Main()
         {
             Console.Title = "ДЗ: 27. В функции можно использовать функции её уровня и на один ниже";
@@ -62,6 +65,22 @@ namespace T13_Code_Refactoring
                     }
                 }
             }
+        }
+    }
+
+    [Serializable]
+    internal class SQLiteException : Exception
+    {
+        public SQLiteException()
+        {
+        }
+
+        public SQLiteException(string? message) : base(message)
+        {
+        }
+
+        public SQLiteException(string? message, Exception? innerException) : base(message, innerException)
+        {
         }
     }
 
