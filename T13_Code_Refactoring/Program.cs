@@ -6,10 +6,7 @@ using System.Text;
 namespace T13_Code_Refactoring
 {
     public class Program
-    {   //Для заглушки от ошибок
-        private readonly TextBox passportTextbox;
-        private readonly TextBox textResult;
-
+    { 
         public static void Main()
         {
             Console.Title = "ДЗ: 27. В функции можно использовать функции её уровня и на один ниже";
@@ -70,18 +67,19 @@ namespace T13_Code_Refactoring
 
     public class SQLiteException : Exception
     {
-        public SQLiteException(){}
+        public SQLiteException() { }
 
-        public SQLiteException(string? message) : base(message){}
+        public SQLiteException(string? message) : base(message) { }
 
-        public SQLiteException(string? message, Exception? innerException) : base(message, innerException){}
+        public SQLiteException(string? message, Exception? innerException) : base(message, innerException) { }
 
         public int ErrorCode { get; private set; }
     }
 
     enum ErrorCodes
     {
-        FileNotFound
+        FileNotFound,
+        InvalidData,
     }
 
     #region Классы заглушки
@@ -143,9 +141,17 @@ namespace T13_Code_Refactoring
 
     public class VotePresenter
     {
-        public void Validate(IView view)
+        private IView _view;
+        private IHasher _hasher;
+        private IRepository _repository;
+
+        public void LoadData(string rawData)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(rawData);
+            
+            string hashData = _hasher.ComputeHash(rawData);
+            Citizen citezen = _repository.GetCitezen(hashData);
+
         }
     }
 
@@ -166,18 +172,49 @@ namespace T13_Code_Refactoring
 
         public void OnButtonClick()
         {
-            _votePresenter.Validate(this);
+            string rawData = TryTakeValidData();
+            _votePresenter.LoadData(rawData);
+        }
+
+        private string TryTakeValidData()
+        {
+            string validData = PassortTextBox.Text.Trim();
+            int validLength = 10;
+            string symbolToReplace = " ";
+
+            if (string.IsNullOrEmpty(validData))
+            {
+                MessageBox.Show("Введите серию и номер паспорта");
+            }
+            if (validData.Replace(symbolToReplace, string.Empty).Length < validLength)
+            {
+                TextResult.Text = "Неверный формат серии или номера паспорта";
+            }
+
+            return validData;
         }
     }
 
     public interface IView
     {
-
+        TextBox PassortTextBox { get; }
+        TextBox TextResult { get; }
     }
 
-    public class Repository
+    public class Repository : IRepository
     {
+        private string _commandText = string.Format($"select * from passports where num='{new SHA256Hasher().ComputeHash(rawData)}' limit 1;");
+        private string _connectionString = string.Format($"Data Source={Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\db.sqlite");
 
+        public Citizen GetCitezen(string hashData)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public interface IRepository
+    {
+        Citizen GetCitezen(string hashData);
     }
 
     public class Citizen
