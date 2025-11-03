@@ -68,20 +68,20 @@ namespace T13_Code_Refactoring
         }
     }
 
-    [Serializable]
-    internal class SQLiteException : Exception
+    public class SQLiteException : Exception
     {
-        public SQLiteException()
-        {
-        }
+        public SQLiteException(){}
 
-        public SQLiteException(string? message) : base(message)
-        {
-        }
+        public SQLiteException(string? message) : base(message){}
 
-        public SQLiteException(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
+        public SQLiteException(string? message, Exception? innerException) : base(message, innerException){}
+
+        public int ErrorCode { get; private set; }
+    }
+
+    enum ErrorCodes
+    {
+        FileNotFound
     }
 
     #region Классы заглушки
@@ -143,7 +143,7 @@ namespace T13_Code_Refactoring
 
     public class VotePresenter
     {
-        internal void Validate(IView view)
+        public void Validate(IView view)
         {
             throw new NotImplementedException();
         }
@@ -180,15 +180,29 @@ namespace T13_Code_Refactoring
 
     }
 
-    public class Passport
+    public class Citizen
     {
-        public Passport(string idendificationNumber)
+        private readonly Passport _passport;
+
+        public Citizen(Passport passport)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(idendificationNumber);
-            IdendificationNumber = idendificationNumber;
+            ArgumentNullException.ThrowIfNull(passport);
+
+            _passport = passport;
         }
 
-        public string IdendificationNumber { get; }
+        public bool CanVote { get; }
+    }
+
+    public class Passport
+    {
+        public Passport(string id)
+        {
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(id);
+            Id = id;
+        }
+
+        public string Id { get; }
     }
 
     public class SHA256Hasher : IHasher
