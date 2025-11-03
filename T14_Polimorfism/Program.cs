@@ -8,17 +8,14 @@
 
             var orderForm = new OrderForm();
             var paymentHandler = new PaymentHandler();
+            var paymentSystemFactory = new PaymentSystemFactory();
 
             var systemId = orderForm.ShowForm();
+            var systemPayment = paymentSystemFactory.Get(systemId);
 
-            if (systemId == "QIWI")
-                Console.WriteLine("Перевод на страницу QIWI...");
-            else if (systemId == "WebMoney")
-                Console.WriteLine("Вызов API WebMoney...");
-            else if (systemId == "Card")
-                Console.WriteLine("Вызов API банка эмитера карты Card...");
+            Console.WriteLine($"{systemPayment.CallAPI()}");
 
-            paymentHandler.ShowPaymentResult(systemId);
+            paymentHandler.ShowPaymentResult(systemPayment);
         }
     }
 
@@ -36,18 +33,82 @@
 
     public class PaymentHandler
     {
-        public void ShowPaymentResult(string systemId)
+        public void ShowPaymentResult(IPaymentSystem paymentSystem)
         {
-            Console.WriteLine($"Вы оплатили с помощью {systemId}");
-
-            if (systemId == "QIWI")
-                Console.WriteLine("Проверка платежа через QIWI...");
-            else if (systemId == "WebMoney")
-                Console.WriteLine("Проверка платежа через WebMoney...");
-            else if (systemId == "Card")
-                Console.WriteLine("Проверка платежа через Card...");
-
+            Console.WriteLine($"Вы оплатили с помощью {paymentSystem.SystemId}");
+            Console.WriteLine($"Проверка платежа через {paymentSystem.SystemId}...");
             Console.WriteLine("Оплата прошла успешно!");
         }
+    }
+
+    public class PaymentSystemFactory
+    {
+        private readonly Dictionary<string, IPaymentSystem> _paymentSystems;
+
+        public PaymentSystemFactory()
+        {
+            _paymentSystems = new Dictionary<string, IPaymentSystem>()
+            {
+                {"QIWI", new QIWI() },
+                {"WebMoney", new WebMoney() },
+                {"Card", new Card() }
+            };
+        }
+
+        public IPaymentSystem Get(string systemId)
+        {
+            return _paymentSystems.Where(paymentSystemId => paymentSystemId.Key.ToLower() == systemId.ToLower()).First().Value;
+        }
+    }
+
+    public class QIWI : IPaymentSystem
+    {
+        public QIWI()
+        {
+            SystemId = nameof(QIWI);
+        }
+
+        public string SystemId { get; }
+
+        public string CallAPI()
+        {
+            return $"Перевод на страницу {SystemId}...";
+        }
+    }
+
+    public class WebMoney : IPaymentSystem
+    {
+        public WebMoney()
+        {
+            SystemId = nameof(WebMoney);
+        }
+
+        public string SystemId { get; }
+
+        public string CallAPI()
+        {
+            return $"Вызов API {SystemId}...";
+        }
+    }
+
+    public class Card : IPaymentSystem
+    {
+        public Card()
+        {
+            SystemId = nameof(Card);
+        }
+
+        public string SystemId { get; }
+
+        public string CallAPI()
+        {
+            return $"Вызов API банка эмитера карты {SystemId}...";
+        }
+    }
+
+    public interface IPaymentSystem
+    {
+        string SystemId { get; }
+        string CallAPI();
     }
 }
