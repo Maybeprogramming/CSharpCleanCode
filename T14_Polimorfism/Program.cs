@@ -1,12 +1,11 @@
-﻿using System.Xml.Linq;
-
-namespace T14_Polimorfism
+﻿namespace T14_Polimorfism
 {
     public class Program
     {
         static void Main()
         {
             Console.Title = "ДЗ: Замена условной логики полиморфизмом";
+            //Фабрику лучше передавать в хэндлер! 
 
             var orderForm = new OrderForm();
             var paymentHandler = new PaymentHandler();
