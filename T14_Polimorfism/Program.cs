@@ -1,4 +1,6 @@
-﻿namespace T14_Polimorfism
+﻿using System.Xml.Linq;
+
+namespace T14_Polimorfism
 {
     public class Program
     {
@@ -10,8 +12,8 @@
             var paymentHandler = new PaymentHandler();
             var paymentSystemFactory = new PaymentSystemFactory();
 
-            var systemId = orderForm.ShowForm();
-            var systemPayment = paymentSystemFactory.Get(systemId);
+            var systemId = orderForm.ShowForm(paymentSystemFactory.GetPaymentsSystemNames());
+            var systemPayment = paymentSystemFactory.Create(systemId);
 
             Console.WriteLine($"{systemPayment.CallAPI()}");
 
@@ -21,13 +23,26 @@
 
     public class OrderForm
     {
-        public string ShowForm()
+        public string ShowForm(string[] paymentSystemNames)
         {
-            Console.WriteLine("Мы принимаем: QIWI, WebMoney, Card");
+            Console.WriteLine($"Мы принимаем: {GetContactString(paymentSystemNames)}");
 
             //симуляция веб интерфейса
             Console.WriteLine("Какое системой вы хотите совершить оплату?");
             return Console.ReadLine();
+        }
+
+        private string GetContactString(string[] paymentSystemNames)
+        {
+            string result = String.Empty;
+            string splitSymbols = ", ";
+
+            for (int i = 0; i < paymentSystemNames.Length - 1; i++)
+            {
+                result += paymentSystemNames[i] + splitSymbols;
+            }
+
+            return result += paymentSystemNames[paymentSystemNames.Length - 1];
         }
     }
 
@@ -43,67 +58,79 @@
 
     public class PaymentSystemFactory
     {
-        private readonly Dictionary<string, IPaymentSystem> _paymentSystems;
+        private readonly Dictionary<string, PaymentFactory> _paymentSystemsFactory;
 
         public PaymentSystemFactory()
         {
-            _paymentSystems = new Dictionary<string, IPaymentSystem>()
+            _paymentSystemsFactory = new Dictionary<string, PaymentFactory>()
             {
-                {"QIWI", new QIWI() },
-                {"WebMoney", new WebMoney() },
-                {"Card", new Card() }
+                {"QIWI", new QIWIFactory() },
+                {"WebMoney", new WebMoneyFactory() },
+                {"Card", new CardFactory() }
             };
         }
 
-        public IPaymentSystem Get(string systemId)
-        {
-            return _paymentSystems.Where(paymentSystemId => paymentSystemId.Key.ToLower() == systemId.ToLower()).First().Value;
-        }
+        public IPaymentSystem Create(string systemId) =>
+            _paymentSystemsFactory.Where(paymentSystemId => paymentSystemId.Key.ToLower() == systemId.ToLower()).First().Value.Create() ?? throw new InvalidOperationException(nameof(Create));
+
+        public string[] GetPaymentsSystemNames() =>
+            _paymentSystemsFactory.Select(name => name.Key).ToArray();
+    }
+
+    public abstract class PaymentFactory
+    {
+        public abstract IPaymentSystem Create();
+    }
+
+    public class QIWIFactory : PaymentFactory
+    {
+        public override IPaymentSystem Create() =>
+            new QIWI();
+    }
+
+    public class WebMoneyFactory : PaymentFactory
+    {
+        public override IPaymentSystem Create() =>
+            new WebMoney();
+    }
+
+    public class CardFactory : PaymentFactory
+    {
+        public override IPaymentSystem Create() =>
+            new Card();
     }
 
     public class QIWI : IPaymentSystem
     {
-        public QIWI()
-        {
+        public QIWI() =>
             SystemId = nameof(QIWI);
-        }
 
         public string SystemId { get; }
 
-        public string CallAPI()
-        {
-            return $"Перевод на страницу {SystemId}...";
-        }
+        public string CallAPI() =>
+            $"Перевод на страницу {SystemId}...";
     }
 
     public class WebMoney : IPaymentSystem
     {
-        public WebMoney()
-        {
+        public WebMoney() =>
             SystemId = nameof(WebMoney);
-        }
 
         public string SystemId { get; }
 
-        public string CallAPI()
-        {
-            return $"Вызов API {SystemId}...";
-        }
+        public string CallAPI() =>
+            $"Вызов API {SystemId}...";
     }
 
     public class Card : IPaymentSystem
     {
-        public Card()
-        {
+        public Card() =>
             SystemId = nameof(Card);
-        }
 
         public string SystemId { get; }
 
-        public string CallAPI()
-        {
-            return $"Вызов API банка эмитера карты {SystemId}...";
-        }
+        public string CallAPI() =>
+            $"Вызов API банка эмитера карты {SystemId}...";
     }
 
     public interface IPaymentSystem
